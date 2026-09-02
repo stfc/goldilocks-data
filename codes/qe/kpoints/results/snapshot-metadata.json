@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "aiida_profile": "presto",
+  "group_label": "goldilocks/qe-scf/nospin/pseudodojo",
+  "thresholds": {
+    "medium_mev_per_atom": 5.0,
+    "well_mev_per_atom": 3.0,
+    "ultra_mev_per_atom": 1.0,
+    "min_tail_points": 3
+  },
+  "generated_at": "2026-09-01T10:57:50.063094+00:00",
+  "workchain_count": 127921,
+  "source_count": 16208,
+  "ultra_converged_count": 15474
+}

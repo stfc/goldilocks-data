@@ -1,0 +1,21 @@
+.DS_Store
+**/.DS_Store
+.venv/
+.venv-*/
+.pytest_cache/
+.ruff_cache/
+**/__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Local agent/session files
+.agents/
+AGENTS.md
+CLAUDE.md
+
+# Historical working copies remain local; the curated notebook lives beside them.
+codes/**/notebooks/archive/
+.notebooks-orig-backup-*.tar.gz
+
+# Intermediate analysis caches are reproducible and can be large.
+*.pkl
