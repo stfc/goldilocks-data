@@ -18,7 +18,7 @@ AiiDA is the only execution engine. The extensible axes are:
 Campaign documentation is organised first by code and then by task:
 
 ```text
-codes/
+campaigns/
   qe/
     kpoints/       # setup, scripts, notebook, and result snapshot
 src/               # reusable Python mechanics shared by campaigns
@@ -113,13 +113,13 @@ and CIF paths outside the reusable package API.
 Preview the next cycle:
 
 ```bash
-uv run --extra aiida --extra kmesh python codes/qe/kpoints/scripts/monitor.py --once --cif-dir /path/to/CIF_files
+uv run --extra aiida --extra kmesh python campaigns/qe/kpoints/scripts/monitor.py --once --cif-dir /path/to/CIF_files
 ```
 
 Run one real cycle:
 
 ```bash
-uv run --extra aiida --extra kmesh python codes/qe/kpoints/scripts/monitor.py --execute --cif-dir /path/to/CIF_files
+uv run --extra aiida --extra kmesh python campaigns/qe/kpoints/scripts/monitor.py --execute --cif-dir /path/to/CIF_files
 ```
 
 Each cycle:
@@ -131,7 +131,7 @@ Each cycle:
    full `kindex=0..kindex_max` range
 5. submits only missing kindex points, using AiiDA extras for de-duplication
 
-See [`codes/qe/kpoints/README.md`](codes/qe/kpoints/README.md) for plugin setup,
+See [`campaigns/qe/kpoints/README.md`](campaigns/qe/kpoints/README.md) for plugin setup,
 campaign settings, analysis, and the result snapshot.
 
 ## Development
@@ -139,5 +139,5 @@ campaign settings, analysis, and the result snapshot.
 ```bash
 uv sync --group dev
 uv run pytest
-uv run ruff check src tests codes/qe/kpoints/scripts
+uv run ruff check src tests campaigns/qe/kpoints/scripts
 ```

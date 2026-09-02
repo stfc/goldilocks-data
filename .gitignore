@@ -14,8 +14,13 @@ AGENTS.md
 CLAUDE.md
 
 # Historical working copies remain local; the curated notebook lives beside them.
-codes/**/notebooks/archive/
+campaigns/**/notebooks/archive/
 .notebooks-orig-backup-*.tar.gz
+
+# Local exploratory material and internal planning are not public artefacts.
+/notebooks/
+/docs/PLAN.md
+/docs/PLAN.en.md
 
 # Intermediate analysis caches are reproducible and can be large.
 *.pkl
