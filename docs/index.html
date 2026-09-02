@@ -23,6 +23,7 @@
         </span>
       </a>
       <nav aria-label="Primary navigation">
+        <a href="#setup">Setup</a>
         <a href="#method">Method</a>
         <a href="#catalog">Catalog</a>
         <a href="#analysis">Analysis</a>
@@ -72,6 +73,136 @@
         <span><b>Task</b> SCF k-point convergence</span>
         <span><b>Engine</b> AiiDA</span>
         <span><b>Format</b> Parquet + CSV</span>
+      </section>
+
+      <section class="section setup-section" id="setup">
+        <div class="section-heading split-heading">
+          <div>
+            <p class="eyebrow">Reproduce the workflow</p>
+            <h2>Set up the engine, then add the code.</h2>
+          </div>
+          <p>
+            AiiDA manages provenance and execution; <code>aiida-quantumespresso</code>
+            adds the workflows and calculation plugins for Quantum ESPRESSO. Keep both
+            in the same dedicated Python environment.
+          </p>
+        </div>
+
+        <div class="setup-grid">
+          <article class="setup-card">
+            <div class="setup-card-head">
+              <span class="setup-number">01</span>
+              <div>
+                <span class="kicker">macOS</span>
+                <h3>Install AiiDA</h3>
+              </div>
+            </div>
+            <ol class="setup-steps">
+              <li>
+                <h4>Install local services</h4>
+                <p>Homebrew provides the message broker and database used by a production profile.</p>
+                <pre><code>brew install uv rabbitmq postgresql
+brew services start rabbitmq
+brew services start postgresql</code></pre>
+              </li>
+              <li>
+                <h4>Create an isolated environment</h4>
+                <pre><code>uv venv --python 3.12 ~/.virtualenvs/aiida
+source ~/.virtualenvs/aiida/bin/activate
+uv pip install aiida-core
+verdi --version</code></pre>
+              </li>
+              <li>
+                <h4>Create a profile and start the daemon</h4>
+                <pre><code>verdi presto --profile-name goldilocks --use-postgres
+verdi daemon start
+verdi status</code></pre>
+                <p>A healthy setup reports the profile, storage, broker, and daemon as available.</p>
+              </li>
+            </ol>
+            <details>
+              <summary>Optional: long-running RabbitMQ workflows</summary>
+              <p>
+                If your broker closes long-running consumers, add
+                <code>consumer_timeout = 3600000000</code> to the Homebrew RabbitMQ
+                configuration and restart the service. Treat this as a site policy,
+                not a required AiiDA default.
+              </p>
+            </details>
+            <a class="setup-link" href="https://aiida.readthedocs.io/projects/aiida-core/en/stable/installation/index.html">AiiDA installation guide ↗</a>
+          </article>
+
+          <article class="setup-card setup-card-accent">
+            <div class="setup-card-head">
+              <span class="setup-number">02</span>
+              <div>
+                <span class="kicker">Quantum ESPRESSO</span>
+                <h3>Install the AiiDA plugin</h3>
+              </div>
+            </div>
+            <ol class="setup-steps">
+              <li>
+                <h4>Install the plugin and pseudo manager</h4>
+                <pre><code>uv pip install aiida-quantumespresso aiida-pseudo
+verdi plugin list aiida.calculations</code></pre>
+              </li>
+              <li>
+                <h4>Register the SCARF computer</h4>
+                <p>First confirm that <code>ssh scarf</code> works, then save this portable template as <code>scarf.yaml</code>.</p>
+                <pre><code>label: scarf
+description: STFC Scientific Computing Application Resource for Facilities
+hostname: &lt;SSH host or alias&gt;
+transport: core.ssh_async
+scheduler: core.slurm
+shebang: '#!/bin/bash'
+work_dir: /work4/&lt;project&gt;/&lt;username&gt;/aiida
+mpirun_command: srun -u -n {tot_num_mpiprocs}
+mpiprocs_per_machine: 32
+use_double_quotes: false
+prepend_text: ''
+append_text: ''</code></pre>
+                <pre><code>verdi -p goldilocks computer setup -n --config scarf.yaml
+verdi -p goldilocks computer configure core.ssh_async scarf
+verdi -p goldilocks computer test scarf</code></pre>
+              </li>
+              <li>
+                <h4>Register <code>pw.x</code></h4>
+                <p>Use the executable and module names supplied by the current SCARF software stack.</p>
+                <pre><code>label: qe-pw
+description: Quantum ESPRESSO pw.x
+default_calc_job_plugin: quantumespresso.pw
+computer: scarf
+filepath_executable: &lt;absolute path to pw.x&gt;
+use_double_quotes: true
+prepend_text: |+
+  module load &lt;Quantum ESPRESSO module&gt;
+append_text: ''</code></pre>
+                <pre><code>verdi -p goldilocks code create core.code.installed \
+  -n --config qe-pw.yaml
+verdi -p goldilocks code show qe-pw@scarf</code></pre>
+              </li>
+              <li>
+                <h4>Install the campaign pseudopotentials</h4>
+                <pre><code>aiida-pseudo install pseudo-dojo \
+  -v 0.4 -x PBEsol -r SR -p standard -f upf -s high
+verdi -p goldilocks group list -a</code></pre>
+                <p>This creates the protocol used here: <code>PseudoDojo/0.4/PBEsol/SR/standard/upf</code>.</p>
+              </li>
+            </ol>
+            <aside class="setup-note">
+              <b>Keep incompatible workflow stacks separate.</b>
+              Install tools such as <code>aiida-workgraph</code> in another environment
+              if their AiiDA version constraints conflict with the QE plugin.
+            </aside>
+            <a class="setup-link" href="https://aiida-quantumespresso.readthedocs.io/en/latest/installation/index.html">Plugin installation guide ↗</a>
+          </article>
+        </div>
+
+        <div class="verification-strip">
+          <span><b>Profile</b><code>verdi -p goldilocks status</code></span>
+          <span><b>Computer</b><code>verdi -p goldilocks computer test scarf</code></span>
+          <span><b>Code</b><code>verdi -p goldilocks code list</code></span>
+        </div>
       </section>
 
       <section class="section" id="method">
