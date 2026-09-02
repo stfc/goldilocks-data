@@ -1,0 +1,29 @@
+schema_version: 1
+code: qe
+task: scf_kpoint_convergence
+kindex_schedule: gamma_inclusive
+
+aiida:
+  plugin: aiida-quantumespresso
+  pseudopotential_manager: aiida-pseudo
+  code_label: qe-7.5-pw-admin@scarf
+  group_label: goldilocks/qe-scf/nospin/pseudodojo
+  pseudo_family: PseudoDojo/0.4/PBEsol/SR/standard/upf
+
+submission:
+  points_per_source: 3
+  max_active_workchains: 50
+  max_new_workchains_per_cycle: 50
+  interval_minutes: 15
+
+convergence_mev_per_atom:
+  medium: 5.0
+  well: 3.0
+  ultra: 1.0
+  minimum_tail_points: 3
+
+latest_snapshot:
+  generated_at: 2026-09-01T10:57:50.063094+00:00
+  workchains: 127921
+  structures: 16208
+  ultra_converged: 15474

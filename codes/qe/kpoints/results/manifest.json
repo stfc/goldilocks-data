@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "dataset": "qe-scf-gamma-kindex-pseudodojo",
+  "code": "quantum-espresso",
+  "task": "scf-kpoint-convergence",
+  "pseudopotentials": "PseudoDojo/0.4/PBEsol/SR/standard/upf",
+  "kindex_schedule": "gamma-inclusive",
+  "metadata": "snapshot-metadata.json",
+  "structure_summary": "source-summary.csv",
+  "workchain_records": "workchain-records.parquet",
+  "analysis_notebook": "../notebooks/analysis.ipynb"
+}
