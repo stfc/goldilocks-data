@@ -9,8 +9,10 @@ const datasets = [
     structures: 16208,
     snapshot: "1 Sep 2026",
     tags: ["PseudoDojo 0.4", "PBEsol", "SR standard", "cold smearing"],
-    summary: "../codes/qe/kpoints/results/source-summary.csv",
-    notebook: "../codes/qe/kpoints/notebooks/analysis.ipynb",
+    summary:
+      "https://raw.githubusercontent.com/stfc/goldilocks-data/main/campaigns/qe/kpoints/results/source-summary.csv",
+    notebook:
+      "https://github.com/stfc/goldilocks-data/blob/main/campaigns/qe/kpoints/notebooks/analysis.ipynb",
   },
   {
     id: "qe-scf-kindex-sssp",
@@ -22,20 +24,8 @@ const datasets = [
     structures: 18220,
     snapshot: "reference dataset",
     tags: ["SSSP 1.3", "PBEsol", "precision", "reference"],
-    notebook: "../codes/qe/kpoints/notebooks/analysis.ipynb",
-  },
-  {
-    id: "qe-scf-smoke",
-    code: "Quantum ESPRESSO",
-    task: "SCF · validation",
-    title: "AiiDA–QE smoke dataset",
-    description:
-      "A compact silicon calculation used to verify the execution, collection, and Parquet export path end to end.",
-    structures: 1,
-    snapshot: "v0.1.0",
-    tags: ["silicon", "smoke test", "Parquet"],
-    summary: "../notebooks/data/processed/v0.1.0-smoke/structure_id=smoke-test-si-bulk-diamond-a543/part-0.parquet",
-    notebook: "../notebooks/01-aiida-smoke-cookbook.ipynb",
+    notebook:
+      "https://github.com/stfc/goldilocks-data/blob/main/campaigns/qe/kpoints/notebooks/analysis.ipynb",
   },
 ];
 

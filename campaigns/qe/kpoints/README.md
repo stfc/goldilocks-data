@@ -37,14 +37,14 @@ Submission is always a dry run unless `--execute` is present.
 Preview one cycle:
 
 ```bash
-uv run --extra aiida --extra kmesh python codes/qe/kpoints/scripts/monitor.py \
+uv run --extra aiida --extra kmesh python campaigns/qe/kpoints/scripts/monitor.py \
   --once --cif-dir /path/to/CIF_files
 ```
 
 Run the periodic submission loop:
 
 ```bash
-uv run --extra aiida --extra kmesh python codes/qe/kpoints/scripts/monitor.py \
+uv run --extra aiida --extra kmesh python campaigns/qe/kpoints/scripts/monitor.py \
   --execute --cif-dir /path/to/CIF_files
 ```
 

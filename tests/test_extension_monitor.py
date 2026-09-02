@@ -5,7 +5,7 @@ from datetime import datetime
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
-SCRIPT_PATH = Path(__file__).resolve().parents[1] / "codes/qe/kpoints/scripts/monitor.py"
+SCRIPT_PATH = Path(__file__).resolve().parents[1] / "campaigns/qe/kpoints/scripts/monitor.py"
 SPEC = spec_from_file_location("extension_monitor", SCRIPT_PATH)
 assert SPEC is not None and SPEC.loader is not None
 extension_monitor = module_from_spec(SPEC)
@@ -22,7 +22,7 @@ def test_safe_defaults_are_forwarded_to_controller() -> None:
     command = build_controller_command(args)
 
     assert command[1:3] == ["-u", command[2]]
-    assert command[2].endswith("codes/qe/kpoints/scripts/extend.py")
+    assert command[2].endswith("campaigns/qe/kpoints/scripts/extend.py")
     assert command[command.index("--batch-size") + 1] == "50"
     assert command[command.index("--max-new-workchains") + 1] == "50"
     assert command[command.index("--max-active") + 1] == "50"
