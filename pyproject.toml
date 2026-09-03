@@ -18,6 +18,7 @@ aiida = [
     "aiida-quantumespresso",
 ]
 kmesh = [
+    "pyarrow>=15",
     "pymatgen>=2024.1",
 ]
 
