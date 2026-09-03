@@ -621,6 +621,19 @@ wheels = [
 ]
 
 [[package]]
+name = "data-collections-api"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "schema" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4e/bd/faa8057a212e568d28242ee3b5d15bd9f5c16a35e6573269db59f2aa535b/data_collections_api-0.1.0.tar.gz", hash = "sha256:63076ddd50e9ea1b3578a280091f511f56d06f7ddaaf2920fde03f8defacc2ab", size = 14241, upload-time = "2026-02-11T17:05:50.321Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d3/a5/7b36e810d67bbd2e95e4ed430a28ade77db30d55ec91be7e531dd2e2a5e2/data_collections_api-0.1.0-py3-none-any.whl", hash = "sha256:09d5f3ae5b47256abd7c1c80d0654a5d5b65889c8dfe71697ddbf4347be4fd0b", size = 15878, upload-time = "2026-02-11T17:05:49.201Z" },
+]
+
+[[package]]
 name = "decorator"
 version = "5.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -784,6 +797,9 @@ kmesh = [
     { name = "pyarrow" },
     { name = "pymatgen" },
 ]
+publish = [
+    { name = "data-collections-api" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -799,11 +815,12 @@ docs = [
 requires-dist = [
     { name = "aiida-core", marker = "extra == 'aiida'", specifier = ">=2.6" },
     { name = "aiida-quantumespresso", marker = "extra == 'aiida'" },
+    { name = "data-collections-api", marker = "extra == 'publish'", specifier = "==0.1.0" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pyarrow", marker = "extra == 'kmesh'", specifier = ">=15" },
     { name = "pymatgen", marker = "extra == 'kmesh'", specifier = ">=2024.1" },
 ]
-provides-extras = ["aiida", "kmesh"]
+provides-extras = ["aiida", "kmesh", "publish"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1833,7 +1850,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "ptyprocess" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [
@@ -2800,6 +2817,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/10/9b/5f14927848d2fd4aa891fd88d883788c5a7baba561c7874732364045708c/ruff-0.15.20-py3-none-win32.whl", hash = "sha256:ed65ef510e43a137207e0f01cfcf998aeddb1aeeda5c9d35023e910284d7cf21", size = 10857322, upload-time = "2026-06-25T17:20:28.612Z" },
     { url = "https://files.pythonhosted.org/packages/fa/f0/fe47c501f9dea92a26d788ff98bb5d92ed4cb4c88792c5c88af6b697dc8e/ruff-0.15.20-py3-none-win_amd64.whl", hash = "sha256:a525c81c70fb0380344dd1d8745d8cc1c890b7fc94a58d5a07bd8eb9557b8415", size = 11993274, upload-time = "2026-06-25T17:20:31.871Z" },
     { url = "https://files.pythonhosted.org/packages/d7/2b/9555445e1201d92b3195f45cdb153a0b68f24e0a4273f6e3d5ab46e212bb/ruff-0.15.20-py3-none-win_arm64.whl", hash = "sha256:2f5b2a6d614e8700388806a14996c40fab2c47b819ef57d790a34878858ed9ca", size = 11343498, upload-time = "2026-06-25T17:20:35.03Z" },
+]
+
+[[package]]
+name = "schema"
+version = "0.7.8"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fb/2e/8da627b65577a8f130fe9dfa88ce94fcb24b1f8b59e0fc763ee61abef8b8/schema-0.7.8.tar.gz", hash = "sha256:e86cc08edd6fe6e2522648f4e47e3a31920a76e82cce8937535422e310862ab5", size = 45540, upload-time = "2025-10-11T13:15:40.281Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c9/75/aad85817266ac5285c93391711d231ca63e9ae7d42cd3ca37549e24ebe52/schema-0.7.8-py2.py3-none-any.whl", hash = "sha256:00bd977fadc7d9521bf289850cd8a8aa5f4948f575476b8daaa5c1b57af2dce1", size = 19108, upload-time = "2025-10-11T17:13:07.323Z" },
 ]
 
 [[package]]

@@ -21,6 +21,9 @@ kmesh = [
     "pyarrow>=15",
     "pymatgen>=2024.1",
 ]
+publish = [
+    "data-collections-api==0.1.0",
+]
 
 [dependency-groups]
 dev = [
