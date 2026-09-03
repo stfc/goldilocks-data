@@ -8,9 +8,8 @@
 *.py[cod]
 .ipynb_checkpoints/
 
-# Local agent/session files
-.agents/
-AGENTS.md
+# Agent configuration is committed: .agents/ is the shared source and
+# .claude/skills symlinks to it. CLAUDE.md stays local.
 CLAUDE.md
 
 # Historical working copies remain local; the curated notebook lives beside them.
