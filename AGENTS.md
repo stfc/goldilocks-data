@@ -134,11 +134,18 @@ schedule is worth more than one that exercises a wrapper.
 ## Rules
 
 - **Never push or merge directly to `main`.** All changes arrive through PRs.
+- **A human opens every pull request and writes its body.** An agent prepares the
+  branch and commits, then hands over the branch name, commit log, diff stat, and
+  the issue number to close. An agent never authors or drafts a PR body and never
+  runs `gh pr create` — the one exception is posting a body file the human wrote
+  themselves. This rule lives here, not only in `make-a-pr`, because a rule kept
+  in one repository's skill file is a rule that drifts.
 - Every PR must close an issue (`Closes #N`).
 - Track work status in GitHub Issues/PRs.
-- Any GitHub issue, issue comment, PR description, or review comment written by
-  an agent must explicitly say so and name the human it represents:
-  `Written by an agent on behalf of <user>.`
+- Any GitHub issue, issue comment, or review comment written by an agent must
+  explicitly say so and name the human it represents:
+  `Written by an agent on behalf of <user>.` PR bodies are not on that list
+  because an agent does not write them.
 
 ## Agent Workflow
 
