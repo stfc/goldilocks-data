@@ -21,8 +21,8 @@ def test_safe_defaults_are_forwarded_to_controller() -> None:
 
     command = build_controller_command(args)
 
-    assert command[1:3] == ["-u", command[2]]
-    assert command[2].endswith("campaigns/qe/kpoints/scripts/extend.py")
+    assert command[1:8] == ["run", "--extra", "aiida", "--extra", "kmesh", "python", "-u"]
+    assert command[8].endswith("campaigns/qe/kpoints/scripts/extend.py")
     assert command[command.index("--batch-size") + 1] == "50"
     assert command[command.index("--max-new-workchains") + 1] == "50"
     assert command[command.index("--max-active") + 1] == "50"

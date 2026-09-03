@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
-import sys
 import time
 from collections.abc import Callable, Sequence
 from datetime import datetime, timedelta
@@ -12,6 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 TASK_ROOT = Path(__file__).resolve().parents[1]
 CONTROLLER = TASK_ROOT / "scripts/extend.py"
 DEFAULT_SNAPSHOT_DIR = TASK_ROOT / "results"
+UV_EXECUTABLE = shutil.which("uv") or "uv"
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
@@ -83,7 +84,13 @@ def positive_float(value: str) -> float:
 
 def build_controller_command(args: argparse.Namespace) -> list[str]:
     command = [
-        sys.executable,
+        UV_EXECUTABLE,
+        "run",
+        "--extra",
+        "aiida",
+        "--extra",
+        "kmesh",
+        "python",
         "-u",
         str(CONTROLLER),
         "--snapshot-dir",
