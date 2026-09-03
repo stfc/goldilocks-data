@@ -1,0 +1,57 @@
+site_name: Goldilocks Data
+site_description: Reproducible DFT data-generation workflows for Goldilocks
+site_url: https://stfc.github.io/goldilocks-data/
+repo_url: https://github.com/stfc/goldilocks-data
+repo_name: stfc/goldilocks-data
+
+exclude_docs: |
+  PLAN.md
+  PLAN.en.md
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.footer
+    - navigation.sections
+    - navigation.top
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Use dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Use light mode
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Installation:
+      - Overview: installation/index.md
+      - AiiDA on macOS: installation/aiida-macos.md
+      - Quantum ESPRESSO and SCARF: installation/qe-scarf.md
+  - Data campaigns:
+      - Overview: campaigns/index.md
+      - QE SCF k-points: campaigns/qe-kpoints.md
+  - Results: results.md
+  - Reference:
+      - Repository layout: reference/repository.md
+      - Convergence criteria: reference/convergence.md

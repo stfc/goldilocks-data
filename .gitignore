@@ -21,6 +21,7 @@ campaigns/**/notebooks/archive/
 /notebooks/
 /docs/PLAN.md
 /docs/PLAN.en.md
+/site/
 
 # Intermediate analysis caches are reproducible and can be large.
 *.pkl

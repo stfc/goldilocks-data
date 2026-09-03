@@ -2,6 +2,8 @@
 
 Reusable data-side tooling for Goldilocks DFT sweeps.
 
+User documentation: <https://stfc.github.io/goldilocks-data/>
+
 `goldilocks-data` is the execution and analysis layer around AiiDA-backed DFT
 campaigns. It keeps reusable mechanics in a Python package while leaving
 dataset-specific decisions in notebooks or local scripts.
@@ -140,4 +142,11 @@ campaign settings, analysis, and the result snapshot.
 uv sync --group dev
 uv run pytest
 uv run ruff check src tests campaigns/qe/kpoints/scripts
+```
+
+Build the documentation site:
+
+```bash
+uv sync --group docs
+uv run mkdocs build --strict
 ```
