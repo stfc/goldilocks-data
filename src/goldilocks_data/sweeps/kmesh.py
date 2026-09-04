@@ -30,11 +30,27 @@ def k_distance_to_mesh(structure: Any, k_distance: float) -> tuple[int, int, int
     return tuple(max(1, math.ceil(round(length / k_distance, 5))) for length in lengths)
 
 
-def generate_candidate_k_distances(structure: Any, max_index: int = 30) -> list[float]:
-    """Generate spacing boundaries that can change at least one mesh axis."""
+def generate_candidate_k_distances(structure: Any, max_kpoints_per_axis: int = 50) -> list[float]:
+    """Return the k-distances at which any axis changes its k-point count.
+
+    ``mesh_i = ceil(|b_i| / k_distance)`` steps from ``n`` to ``n + 1`` exactly at
+    ``k_distance = |b_i| / n``, so those quotients are the only distances where
+    the mesh can change.
+
+    ``max_kpoints_per_axis`` bounds ``n`` — how many k-points per axis are
+    enumerated. It is *not* a bound on the number of rungs, which is roughly the
+    number of distinct axis lengths times the bound. Because the bound applies
+    per axis and the axes have different ``|b_i|``, they exhaust their quotients
+    at different distances: the returned list is a complete set of change points
+    only down to ``max(|b_i|) / max_kpoints_per_axis``. See
+    ``build_gamma_kmesh_entries`` for what that implies.
+    """
 
     lengths = _reciprocal_lengths(structure)
-    return sorted({round(length / index, 8) for length in lengths for index in range(1, max_index + 1)}, reverse=True)
+    return sorted(
+        {round(length / index, 8) for length in lengths for index in range(1, max_kpoints_per_axis + 1)},
+        reverse=True,
+    )
 
 
 def mesh_to_k_line_density_interval(structure: Any, mesh: tuple[int, int, int]) -> tuple[float, float]:
@@ -60,10 +76,25 @@ def _n_reduced_kpoints(structure: Any, mesh: tuple[int, int, int]) -> int:
         return full_mesh_size
 
 
-def build_gamma_kmesh_entries(structure: Any, max_candidate_index: int = 30) -> list[KMeshEntry]:
-    """Build distinct unshifted, Gamma-inclusive k-mesh entries for a structure."""
+def build_gamma_kmesh_entries(structure: Any, max_kpoints_per_axis: int = 50) -> list[KMeshEntry]:
+    """Build the unshifted, Gamma-inclusive k-mesh ladder for a structure.
 
-    candidates = generate_candidate_k_distances(structure, max_candidate_index)
+    ``kindex`` is 0-based and rung 0 is the Gamma-only ``(1, 1, 1)`` mesh, which
+    the first probe always yields because it sits above every ``|b_i|``.
+
+    The ladder is complete and non-repeating:
+
+    * It stops at the first rung where an axis count would rise by more than one.
+      Once the longest axis has used up its enumerated quotients its count keeps
+      rising with no candidate marking the change, so adjacent candidates span
+      several meshes and probing the midpoint keeps only one of them. A jump
+      greater than one is exactly that condition.
+    * It skips a mesh already on the ladder. Axes with equal ``|b_i|`` share
+      their change points, so two consecutive intervals can yield the same mesh;
+      without this, two ``kindex`` values would name one mesh.
+    """
+
+    candidates = generate_candidate_k_distances(structure, max_kpoints_per_axis)
     if not candidates:
         return []
 
@@ -73,7 +104,11 @@ def build_gamma_kmesh_entries(structure: Any, max_candidate_index: int = 30) -> 
 
     entries: list[KMeshEntry] = []
     seen: set[tuple[int, int, int]] = set()
+    previous: tuple[int, int, int] | None = None
     for mesh, interval in intervals:
+        if previous is not None and any(now - before > 1 for before, now in zip(previous, mesh, strict=True)):
+            break
+        previous = mesh
         if mesh in seen:
             continue
         seen.add(mesh)
