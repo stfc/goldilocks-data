@@ -42,18 +42,21 @@ def community() -> str:
 def write_deposit() -> Callable[..., Path]:
     """Write a deposit directory whose SHA256SUMS matches its payload."""
 
-    def build(directory: Path, *, payload: dict[str, str] | None = None) -> Path:
+    def build(directory: Path, *, payload: dict[str, str] | None = None, dataset_record: bool = True) -> Path:
         payload = payload if payload is not None else {"data.csv": "source_db_id,k_index\n1,0\n2,3\n"}
         directory.mkdir(parents=True, exist_ok=True)
         (directory / "README.md").write_text("# test dataset\n")
-        (directory / "dataset.json").write_text(json.dumps(DATASET_RECORD))
         (directory / "metadata.json").write_text(json.dumps(PSDI_METADATA))
+        listed = ["README.md"]
+        if dataset_record:
+            (directory / "dataset.json").write_text(json.dumps(DATASET_RECORD))
+            listed.append("dataset.json")
 
         lines = []
         for name, text in payload.items():
             (directory / name).write_text(text)
             lines.append(f"{hashlib.sha256(text.encode()).hexdigest()}  {name}")
-        for name in ("README.md", "dataset.json"):
+        for name in listed:
             digest = hashlib.sha256((directory / name).read_bytes()).hexdigest()
             lines.append(f"{digest}  {name}")
         (directory / "SHA256SUMS").write_text("\n".join(lines) + "\n")

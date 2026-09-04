@@ -45,9 +45,12 @@ def _publish(args: argparse.Namespace) -> int:
     from goldilocks_data.publish import create_deposit, load_deposit, read_token
 
     deposit = load_deposit(args.deposit_dir, community=args.community)
-    record = deposit.record
     print(f"deposit:   {deposit.directory}")
-    print(f"dataset:   {record['dataset']} {record['version']}  rows={record['rows']}")
+    if deposit.record is None:
+        print("dataset:   no dataset.json; schema is described in README.md only")
+    else:
+        record = deposit.record
+        print(f"dataset:   {record['dataset']} {record['version']}  rows={record['rows']}")
     print(f"community: {deposit.community}")
     print("files:")
     for name in sorted(deposit.files):

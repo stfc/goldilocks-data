@@ -13,8 +13,30 @@ def test_load_deposit_accepts_a_consistent_directory(tmp_path: Path, write_depos
 
     assert deposit.community == community
     assert deposit.record["dataset"] == "goldilocks-mc3d-nospin-scf-kmesh"
-    # Payload and descriptors are all uploaded; SHA256SUMS cannot digest itself.
-    assert set(deposit.files) == {"data.csv", "README.md", "dataset.json", "SHA256SUMS", "metadata.json"}
+    assert set(deposit.files) == {"data.csv", "README.md", "dataset.json"}
+
+
+def test_load_deposit_accepts_a_deposit_without_a_dataset_record(tmp_path: Path, write_deposit, community: str) -> None:
+    # Without dataset.json the schema is described in README.md only.
+    deposit = load_deposit(write_deposit(tmp_path / "d", dataset_record=False), community=community)
+
+    assert deposit.record is None
+    assert set(deposit.files) == {"data.csv", "README.md"}
+
+
+def test_load_deposit_uploads_neither_the_psdi_metadata_nor_the_digest_list(
+    tmp_path: Path, write_deposit, community: str
+) -> None:
+    # metadata.json becomes the draft's own fields through the update call, and
+    # SHA256SUMS is the local manifest that gated this load. Both are read, both
+    # stay on disk, neither is published.
+    deposit = load_deposit(write_deposit(tmp_path / "d"), community=community)
+
+    assert "metadata.json" not in deposit.files
+    assert "SHA256SUMS" not in deposit.files
+    assert (deposit.directory / "metadata.json").is_file()
+    assert (deposit.directory / "SHA256SUMS").is_file()
+    assert deposit.metadata["metadata"]["resource_type"] == {"id": "dataset"}
 
 
 def test_load_deposit_rejects_a_tampered_payload(tmp_path: Path, write_deposit, community: str) -> None:

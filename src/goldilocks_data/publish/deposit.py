@@ -11,10 +11,17 @@ README = "README.md"
 DATASET_RECORD = "dataset.json"
 METADATA = "metadata.json"
 
-#: Files that describe the deposit rather than carry its payload. They are
-#: uploaded like any other file but are never listed as payload in SHA256SUMS,
-#: because a digest file cannot meaningfully digest itself.
-DESCRIPTOR_FILES = frozenset({SHA256SUMS, METADATA})
+#: Files that are read from the deposit but never listed in SHA256SUMS.
+#: SHA256SUMS cannot meaningfully digest itself, and metadata.json is not part
+#: of the payload at all.
+UNLISTED_FILES = frozenset({SHA256SUMS, METADATA})
+
+#: Files read from the deposit but not uploaded. metadata.json is what PSDI is
+#: *told*, not a file it receives: its contents become the record's own title,
+#: creators, description and rights through the draft update. SHA256SUMS is the
+#: local integrity manifest — every digest in it is re-derived before upload, and
+#: PSDI stores its own checksum per file once the record exists.
+LOCAL_ONLY_FILES = frozenset({METADATA, SHA256SUMS})
 
 _DIGEST_LENGTH = 64
 
@@ -23,14 +30,15 @@ _DIGEST_LENGTH = 64
 class Deposit:
     """A validated deposit directory ready for one PSDI draft.
 
-    ``files`` maps the upload name to a local path and includes both payload and
-    descriptor files. Every payload digest in ``SHA256SUMS`` has been re-derived
-    from disk before this object exists.
+    ``files`` maps the upload name to a local path, and holds the payload only:
+    ``metadata.json`` is sent as the draft's metadata instead, and ``SHA256SUMS``
+    stays local. Every payload digest in ``SHA256SUMS`` has been re-derived from
+    disk before this object exists.
     """
 
     directory: Path
     metadata: dict[str, Any]
-    record: dict[str, Any]
+    record: dict[str, Any] | None
     community: str
     files: dict[str, Path]
 
@@ -148,7 +156,10 @@ def load_deposit(directory: Path, *, community: str) -> Deposit:
         raise ValueError("community must be a non-empty string")
 
     metadata = _load_json(directory / METADATA)
-    record = validate_dataset_record(_load_json(directory / DATASET_RECORD))
+    # dataset.json is optional: with one, a consumer checks the schema instead
+    # of reading prose; without one, the column semantics live only in README.md.
+    record_path = directory / DATASET_RECORD
+    record = validate_dataset_record(_load_json(record_path)) if record_path.is_file() else None
 
     readme = directory / README
     if not readme.is_file():
@@ -160,7 +171,7 @@ def load_deposit(directory: Path, *, community: str) -> Deposit:
     sums = parse_sha256sums(sums_path.read_text())
 
     on_disk = {path.name for path in directory.iterdir() if path.is_file()}
-    unlisted = sorted(on_disk - set(sums) - DESCRIPTOR_FILES)
+    unlisted = sorted(on_disk - set(sums) - UNLISTED_FILES)
     if unlisted:
         names = ", ".join(unlisted)
         raise ValueError(f"files are present but absent from {SHA256SUMS}: {names}")
@@ -175,7 +186,7 @@ def load_deposit(directory: Path, *, community: str) -> Deposit:
             raise ValueError(f"{name} has SHA-256 {actual}; {SHA256SUMS} expects {expected}")
         files[name] = path
 
-    for name in DESCRIPTOR_FILES:
+    for name in UNLISTED_FILES - LOCAL_ONLY_FILES:
         files[name] = directory / name
 
     default_preview = metadata.get("files", {}).get("default_preview")
