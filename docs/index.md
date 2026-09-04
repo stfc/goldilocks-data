@@ -21,8 +21,8 @@ Goldilocks learns those choices from systematic convergence calculations.
    identifiers and calculation provenance.
 2. **Analyse** — apply explicit convergence criteria and find the smallest
    acceptable input for each structure.
-3. **Publish** — export documented CSV and Parquet snapshots for research and
-   model training.
+3. **Publish** — deposit documented snapshots as citable
+   [published records](published-records.md) for research and model training.
 
 Model training belongs in
 [Goldilocks ML](https://stfc.github.io/goldilocks-ml/). End-user input
@@ -42,3 +42,4 @@ records every calculation in AiiDA, and exports one summary row per structure.
 [Install the environment](installation/index.md){ .md-button .md-button--primary }
 [Run the k-point campaign](campaigns/qe-kpoints.md){ .md-button }
 [Use the results](results.md){ .md-button }
+[Published records](published-records.md){ .md-button }
