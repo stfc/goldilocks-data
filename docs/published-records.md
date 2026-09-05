@@ -30,9 +30,16 @@ have a structure file and no converged answer.
 
 ### The k_index in this record
 
-`k_index` is **0-based, with rung 0 the gamma-only `(1, 1, 1)` mesh**, and was
-computed with a per-axis enumeration bound of **50**, the ladder truncated at
-the first rung where an axis count would rise by more than one.
+`k_index` in this record is **0-based, with rung 0 the gamma-only `(1, 1, 1)`
+mesh**, and was computed with a per-axis enumeration bound of **50**, the ladder
+truncated at the first rung where an axis count would rise by more than one.
+
+!!! warning "This record is 0-based; the convention since is 1-based"
+
+    Everything produced after this record numbers the same ladder from 1, so
+    rung *n* here is rung *n + 1* under the current convention. The published
+    record is not rewritten: it keeps the convention it was published with, and
+    a consumer reads the base from the record rather than assuming it.
 
 That bound is part of the definition, not an implementation detail. The change
 points of the ladder are `|b_i| / n`, the bound applies per axis, and axes with

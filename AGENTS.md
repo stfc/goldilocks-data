@@ -70,8 +70,12 @@ docs/                      the published MkDocs site
 
 ## The k-index Convention
 
-`k_index` is **0-based**, and rung 0 is the Γ-only `(1, 1, 1)` mesh. Each step up
+`k_index` is **1-based**, and rung 1 is the Γ-only `(1, 1, 1)` mesh. Each step up
 is the next denser mesh the reciprocal lattice admits.
+
+Record `d5ds2-64f16` was published before this and is 0-based. A published
+record keeps the convention it was published with, so a consumer must read the
+base from the record rather than assume it.
 
 The ladder is built from the k-distances at which `ceil(|b_i| / k_distance)`
 changes on any axis — that is, from `|b_i| / n`. The enumeration cap on `n` is

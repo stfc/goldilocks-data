@@ -79,8 +79,10 @@ def _n_reduced_kpoints(structure: Any, mesh: tuple[int, int, int]) -> int:
 def build_gamma_kmesh_entries(structure: Any, max_kpoints_per_axis: int = 50) -> list[KMeshEntry]:
     """Build the unshifted, Gamma-inclusive k-mesh ladder for a structure.
 
-    ``kindex`` is 0-based and rung 0 is the Gamma-only ``(1, 1, 1)`` mesh, which
-    the first probe always yields because it sits above every ``|b_i|``.
+    ``kindex`` is 1-based and rung 1 is the Gamma-only ``(1, 1, 1)`` mesh, which
+    the first probe always yields because it sits above every ``|b_i|``. The
+    rung therefore counts k-points on the densest axis of the coarsest mesh it
+    could be: rung n is reached when some axis first needs n k-points.
 
     The ladder is complete and non-repeating:
 
@@ -118,7 +120,7 @@ def build_gamma_kmesh_entries(structure: Any, max_kpoints_per_axis: int = 50) ->
             line_interval = None
         entries.append(
             KMeshEntry(
-                kindex=len(entries),
+                kindex=len(entries) + 1,
                 mesh=mesh,
                 k_distance_interval=interval,
                 k_line_density_interval=line_interval,

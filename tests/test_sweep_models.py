@@ -37,11 +37,11 @@ def test_kindex_points_are_generic_sweep_points() -> None:
         )
     )
 
-    points = kindex_points(structure, 0, 1)
+    points = kindex_points(structure, 1, 2)
 
-    assert points[0].axis_values == {SweepAxis.KINDEX.value: 0}
+    assert points[0].axis_values == {SweepAxis.KINDEX.value: 1}
     assert points[0].k_mesh == (1, 1, 1)
-    assert points[0].extras["kindex"] == 0
+    assert points[0].extras["kindex"] == 1
 
 
 def test_aiida_job_spec_keeps_code_and_intent_separate_from_sweep_axis() -> None:

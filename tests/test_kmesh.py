@@ -42,9 +42,9 @@ def test_gamma_kmesh_entries_start_with_gamma_mesh() -> None:
 
     entries = build_gamma_kmesh_entries(structure, max_kpoints_per_axis=4)
 
-    assert entries[0].kindex == 0
+    assert entries[0].kindex == 1
     assert entries[0].mesh == (1, 1, 1)
-    assert entries[1].kindex == 1
+    assert entries[1].kindex == 2
     assert entries[0].k_pra == 4.0
 
 
@@ -71,7 +71,7 @@ def test_entry_payload_serializes_infinite_right_bound_as_none() -> None:
 
     payload = entry_payload(build_gamma_kmesh_entries(structure, max_kpoints_per_axis=2)[0])
 
-    assert payload["kindex"] == 0
+    assert payload["kindex"] == 1
     assert payload["k_mesh"] == (1, 1, 1)
     assert payload["k_dist_right"] is None
 
@@ -121,7 +121,7 @@ def test_raising_the_axis_bound_only_extends_the_ladder() -> None:
     assert long[: len(short)] == short
 
 
-def test_kindex_is_contiguous_and_zero_based() -> None:
+def test_kindex_is_contiguous_and_one_based() -> None:
     entries = build_gamma_kmesh_entries(_structure(0.701, 0.7816, 0.701))
 
-    assert [entry.kindex for entry in entries] == list(range(len(entries)))
+    assert [entry.kindex for entry in entries] == list(range(1, len(entries) + 1))
