@@ -29,8 +29,11 @@ same scale.
 
 ## `kindex`
 
-The rung's position, **0-based**, with rung 0 the Γ-only `(1, 1, 1)` mesh. Each
+The rung's position, **1-based**, with rung 1 the Γ-only `(1, 1, 1)` mesh. Each
 step up is the next denser mesh the reciprocal lattice admits.
+
+Record `d5ds2-64f16` predates this convention and is 0-based; see
+[published records](../published-records.md).
 
 `kindex` only means something together with the enumeration bound that built the
 ladder — see [the ladder](#the-ladder) below.

@@ -5,11 +5,16 @@ from goldilocks_data.sweeps.models import SweepAxis, SweepPoint
 
 
 def kindex_points(structure: object, kindex_min: int, kindex_max: int) -> tuple[SweepPoint, ...]:
-    """Build explicit sweep points for a gamma-inclusive kindex range."""
+    """Build explicit sweep points for a gamma-inclusive kindex range.
+
+    ``kindex_min`` and ``kindex_max`` are rungs, not list positions: rung 1 is
+    the Gamma-only mesh and lives at index 0.
+    """
 
     entries = build_gamma_kmesh_entries(structure)
+    selected = [entry for entry in entries if int(kindex_min) <= entry.kindex <= int(kindex_max)]
     points: list[SweepPoint] = []
-    for entry in entries[int(kindex_min) : int(kindex_max) + 1]:
+    for entry in selected:
         points.append(
             SweepPoint(
                 axis_values={SweepAxis.KINDEX.value: int(entry.kindex)},
