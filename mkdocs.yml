@@ -56,4 +56,5 @@ nav:
   - Publish a dataset: publishing.md
   - Reference:
       - Repository layout: reference/repository.md
+      - k-mesh quantities: reference/kmesh.md
       - Convergence criteria: reference/convergence.md
