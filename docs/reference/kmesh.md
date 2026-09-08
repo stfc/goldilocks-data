@@ -5,7 +5,7 @@ carrying six quantities. They describe the same mesh in different units, and two
 of them use different reciprocal-lattice conventions, so mixing them silently is
 easy. This page defines each one.
 
-Built by `goldilocks_data.sweeps.kmesh.build_gamma_kmesh_entries`.
+Built by `goldilocks_data.kmesh.build_gamma_kmesh_entries`.
 
 ## Two reciprocal conventions, both in use
 
@@ -35,8 +35,8 @@ step up is the next denser mesh the reciprocal lattice admits.
 Record `d5ds2-64f16` predates this convention and is 0-based; see
 [published records](../published-records.md).
 
-`kindex` only means something together with the enumeration bound that built the
-ladder — see [the ladder](#the-ladder) below.
+`kindex` only means something together with the resolution floor
+`min_k_distance` that bounded the ladder — see [the ladder](#the-ladder) below.
 
 ## `mesh`
 
@@ -55,13 +55,13 @@ n_i = max(1, ceil(|b_i| / k_distance))
 The half-open range of k-distance that yields this mesh, as `(lower, upper)` in
 Å⁻¹ on the solid-state lengths. Any k-distance in it gives the same mesh.
 
-A mesh corresponds to an interval, never a single value. Rung 0's upper bound is
+A mesh corresponds to an interval, never a single value. Rung 1's upper bound is
 infinite: every k-distance above `max(|b_i|)` gives `(1, 1, 1)`.
 
 ```text
-kindex  0  mesh (1, 1, 1)   k_distance_interval (1.61061, inf)
-kindex  1  mesh (2, 2, 1)   k_distance_interval (0.87042, 1.61061)
-kindex 20  mesh (14, 14, 8) k_distance_interval (0.11504, 0.12389)
+kindex  1  mesh (1, 1, 1)   k_distance_interval (1.61061, inf)
+kindex  2  mesh (2, 2, 1)   k_distance_interval (0.87042, 1.61061)
+kindex 21  mesh (14, 14, 8) k_distance_interval (0.11504, 0.12389)
 ```
 
 If you reduce the interval to one number for training, record which end you
@@ -70,7 +70,7 @@ took. The two ends are different numbers for the same mesh.
 !!! warning "`entry_payload` names the ends the other way round"
 
     `entry_payload` emits `k_dist_left` for the interval's **lower** bound and
-    `k_dist_right` for its **upper** bound, so for `kindex 20` above it gives
+    `k_dist_right` for its **upper** bound, so for `kindex 21` above it gives
     `k_dist_left = 0.11504` and `k_dist_right = 0.12389`.
 
     The published record
@@ -105,7 +105,7 @@ K-points per reciprocal atom: the full mesh size times the number of atoms.
 k_pra = n_atoms * n1 * n2 * n3
 ```
 
-For `100115` at `kindex 20`: `4 * 14 * 14 * 8 = 6272`. It is a cost-like measure
+For `100115` at `kindex 21`: `4 * 14 * 14 * 8 = 6272`. It is a cost-like measure
 that lets meshes be compared across cells of different sizes, and it uses the
 **full** mesh, not the symmetry-reduced count.
 
@@ -113,7 +113,7 @@ that lets meshes be compared across cells of different sizes, and it uses the
 
 How many k-points survive symmetry reduction of the unshifted mesh, via
 pymatgen's `SpacegroupAnalyzer.get_ir_reciprocal_mesh`. This is what the
-calculation actually costs. For `100115` at `kindex 20`: **120**, against a full
+calculation actually costs. For `100115` at `kindex 21`: **120**, against a full
 mesh of 1568.
 
 !!! note "It falls back to the full mesh size"
@@ -127,29 +127,30 @@ mesh of 1568.
 
 Change points are `|b_i| / n`, because `ceil(|b_i| / k_distance)` steps from `n`
 to `n + 1` exactly there. Sorted descending, each interval between neighbours is
-one rung, and probing its midpoint gives the mesh.
+one rung, and probing its midpoint gives the mesh. The first probe sits above
+`max(|b_i|)` and yields the Γ-only mesh.
 
-`max_kpoints_per_axis` (default **50**) bounds `n` — k-points per axis, **not**
-the number of rungs, which is roughly the number of distinct axis lengths times
-the bound.
+`min_k_distance` (default **0.03 Å⁻¹**, on the solid-state 2π lengths — the
+AiiDA-QuantumESPRESSO convention) is the resolution floor: change points denser
+than it are not enumerated, so the ladder ends at a mesh of roughly
+`ceil(|b_i| / min_k_distance)` per axis.
 
-The bound applies per axis, and axes with different `|b_i|` exhaust their change
-points at different k-distances, so the change-point list is complete only down
-to `max(|b_i|) / max_kpoints_per_axis`. The ladder is therefore built with two
-rules:
+The floor is identical for every axis, so the axes run out of change points
+together. Every change point on `[min_k_distance, ∞)` is therefore present and
+consecutive rungs differ by at most one k-point on each axis — the ladder has no
+region where a reachable mesh is silently skipped.
 
-- **truncate at the first gap** — stop at the first rung where an axis count
-  would rise by more than one, which is exactly the signature of a change point
-  that was never enumerated;
-- **skip a repeat** — axes with equal `|b_i|` share change points, so two
-  consecutive intervals can yield the same mesh; keeping both would give one mesh
-  two `kindex` values.
+One rule still shapes it: **skip a repeat**. Axes with equal `|b_i|` share their
+change points, and the two rounding precisions (`round(·, 8)` on the candidate
+k-distances, `round(·, 5)` inside `k_distance_to_mesh`) can land two adjacent
+intervals on one mesh; without the skip, that mesh would take two `kindex`
+values.
 
-Raising the bound only appends rungs and never renumbers an existing one, so a
-recorded `kindex` stays valid under a larger enumeration. A `kindex` computed
-under a *different* bound is not comparable unless it lies in the region both
-bounds cover — so any published `kindex` column must state its bound.
+Lowering `min_k_distance` only appends rungs and never renumbers an existing
+one, so a recorded `kindex` stays valid under a smaller floor. A `kindex`
+computed under a *different* floor is comparable only where the two ranges
+overlap — so any published `kindex` column must state its floor.
 
-This convention is shared with
-[goldilocks-core](https://github.com/stfc/goldilocks-core). Changing it
-invalidates every `kindex` already recorded or trained on.
+This convention must stay in step with
+[goldilocks-core](https://github.com/stfc/goldilocks-core) and goldilocks-ml.
+Changing it invalidates every `kindex` already recorded or trained on.

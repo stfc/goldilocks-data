@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 from goldilocks_data.codes import DftCode
 from goldilocks_data.intents import CalculationIntent
+from goldilocks_data.kmesh import kindex_points
 from goldilocks_data.sweeps import AiidaJobSpec, SweepAxis
-from goldilocks_data.sweeps.kindex import kindex_points
 
 
 @dataclass(frozen=True, slots=True)

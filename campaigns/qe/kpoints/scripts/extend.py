@@ -16,7 +16,8 @@ from goldilocks_data.aiida.cleanup import cleanup_finished
 from goldilocks_data.aiida.submit import existing_kindices_by_source, submit_jobs
 from goldilocks_data.codes import DftCode
 from goldilocks_data.intents import CalculationIntent
-from goldilocks_data.sweeps import AiidaJobSpec, KindexExtension, kindex_points, plan_well_not_ultra_extensions
+from goldilocks_data.kmesh import kindex_points
+from goldilocks_data.sweeps import AiidaJobSpec, KindexExtension, plan_well_not_ultra_extensions
 
 TASK_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SNAPSHOT_DIR = TASK_ROOT / "results"
