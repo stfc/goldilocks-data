@@ -37,15 +37,16 @@ rather than assuming.
 See [convergence criteria](reference/convergence.md) for how labels are assigned,
 and the record's own `README.md` for the full definition and reproduction code.
 
-## Full DFT dataset for the k-mesh paper
+## Quantum ESPRESSO no-spin SCF calculations (SSSP, k-distance)
 
 [`mcpnq-g1j55`](https://data-collections.psdi.ac.uk/records/mcpnq-g1j55) ·
 CC BY 4.0
 
 The complete DFT data behind *Automatic generation of input files with optimised
 k-point meshes for Quantum ESPRESSO self-consistent field total energy
-calculations* — the training set for the paper's machine-learning models. Not a
-convergence-label table: it is the raw per-calculation dump.
+calculations* — the training set for the paper's machine-learning models. Same
+family of calculations as the k-index record above, expressed as a k-distance,
+and it is the raw per-calculation dump rather than a convergence-label table.
 
 | File | Contents |
 | --- | --- |
