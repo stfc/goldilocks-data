@@ -24,3 +24,8 @@ campaigns/**/notebooks/archive/
 
 # Intermediate analysis caches are reproducible and can be large.
 *.pkl
+
+# The PseudoDojo working snapshot is regenerated every cycle from the AiiDA
+# group in snapshot-metadata.json; only the small metadata stays tracked.
+/campaigns/qe/kpoints/results/source-summary.csv
+/campaigns/qe/kpoints/results/workchain-records.parquet

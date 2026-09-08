@@ -13,5 +13,6 @@
   "generated_at": "2026-09-01T10:57:50.063094+00:00",
   "workchain_count": 127921,
   "source_count": 16208,
-  "ultra_converged_count": 15474
+  "ultra_converged_count": 15474,
+  "median_ultra_kindex": 4
 }
