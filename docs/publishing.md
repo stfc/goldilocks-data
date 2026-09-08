@@ -49,7 +49,7 @@ convention a consumer must share are required fields:
   "rows": 17757,
   "columns": [{"name": "k_index", "dtype": "int", "description": "..."}],
   "conventions": {
-    "kmesh_ladder": {"base": 0, "rung_0": "gamma_only", "max_kpoints_per_axis": 50}
+    "kmesh_ladder": {"base": 1, "rung_1": "gamma_only", "min_k_distance": 0.03}
   },
   "provenance": {"code": "quantum_espresso", "calculation": "scf", "spin": "none"}
 }
