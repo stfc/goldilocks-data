@@ -11,7 +11,7 @@ campaign. The AiiDA group remains the authoritative calculation record.
 | Structures | 16,208 |
 | Ultra converged | 15,474 |
 | Ultra rate | 95.47% |
-| Median ultra kindex | 3 |
+| Median ultra kindex | 4 |
 
 Snapshot date: 1 September 2026.
 
