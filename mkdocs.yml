@@ -51,9 +51,10 @@ nav:
   - Data campaigns:
       - Overview: campaigns/index.md
       - QE SCF k-points: campaigns/qe-kpoints.md
-  - Results: results.md
-  - Published records: published-records.md
-  - Publish a dataset: publishing.md
+      - Results: results.md
+  - Publishing:
+      - Published records: published-records.md
+      - Publish a dataset: publishing.md
   - Reference:
       - Repository layout: reference/repository.md
       - k-mesh quantities: reference/kmesh.md
