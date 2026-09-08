@@ -32,11 +32,9 @@ same scale.
 The rung's position, **1-based**, with rung 1 the Γ-only `(1, 1, 1)` mesh. Each
 step up is the next denser mesh the reciprocal lattice admits.
 
-Record `d5ds2-64f16` predates this convention and is 0-based; see
-[published records](../published-records.md).
-
 `kindex` only means something together with the resolution floor
 `min_k_distance` that bounded the ladder — see [the ladder](#the-ladder) below.
+Read the base and the floor from a record rather than assuming them.
 
 ## `mesh`
 
@@ -73,14 +71,10 @@ took. The two ends are different numbers for the same mesh.
     `k_dist_right` for its **upper** bound, so for `kindex 21` above it gives
     `k_dist_left = 0.11504` and `k_dist_right = 0.12389`.
 
-    The published record
-    [`d5ds2-64f16`](https://data-collections.psdi.ac.uk/records/d5ds2-64f16)
-    uses the opposite orientation — its `k_dist_interval` is written
-    `[0.123, 0.115)`, larger value first, because a larger k-distance means a
-    coarser mesh.
-
-    Joining notebook output with that record without checking will swap the
-    bounds. Compare magnitudes, not column names. Tracked as
+    Published records write `k_dist_interval` the other way round — larger value
+    first, `[0.12389, 0.11504)`, because a larger k-distance means a coarser
+    mesh. Joining notebook output with a record without checking will swap the
+    bounds: compare magnitudes, not column names. Tracked as
     [#30](https://github.com/stfc/goldilocks-data/issues/30).
 
 ## `k_line_density_interval`
