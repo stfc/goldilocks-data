@@ -9,7 +9,7 @@ record; a published dataset is a documented view of it at one point in time.
 
 ## Quantum ESPRESSO no-spin SCF calculations (SSSP, k-index)
 
-[`52713-55d86`](https://data-collections.psdi.ac.uk/records/52713-55d86) · v1.0 ·
+[`52713-55d86`](https://data-collections.psdi.ac.uk/records/52713-55d86) · v2.0 ·
 CC BY 4.0
 
 The current SSSP k-index dataset: the converged k-point mesh for 17,757 MC3D
@@ -36,6 +36,25 @@ rather than assuming.
 
 See [convergence criteria](reference/convergence.md) for how labels are assigned,
 and the record's own `README.md` for the full definition and reproduction code.
+
+## Quantum ESPRESSO no-spin SCF calculations (SSSP, k-distance)
+
+[`mcpnq-g1j55`](https://data-collections.psdi.ac.uk/records/mcpnq-g1j55) ·
+CC BY 4.0
+
+The complete DFT data behind *Automatic generation of input files with optimised
+k-point meshes for Quantum ESPRESSO self-consistent field total energy
+calculations* — the training set for the paper's machine-learning models. Same
+family of calculations as the k-index record above, expressed as a k-distance,
+and it is the raw per-calculation dump rather than a convergence-label table.
+
+| File | Contents |
+| --- | --- |
+| `summary.csv` | Per-material k-point convergence: Goldilocks-optimised mesh, MC3D reference mesh, k-distance metrics, and medium / well / ultra levels |
+| `structure_calc_details/` | One directory per structure: the `.cif` plus the full QE output (energies, cutoffs, Fermi level, symmetry counts, wall time, convergence notes) |
+
+This record predates the k-mesh ladder convention and carries meshes and
+k-distances directly, not a `k_index`.
 
 ## Publishing another one
 
