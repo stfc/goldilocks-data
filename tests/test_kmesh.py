@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from goldilocks_data.sweeps.kmesh import (
+from goldilocks_data.kmesh import (
     build_gamma_kmesh_entries,
     entry_payload,
     k_distance_to_mesh,
@@ -40,7 +40,7 @@ def test_gamma_kmesh_entries_start_with_gamma_mesh() -> None:
         natoms=4,
     )
 
-    entries = build_gamma_kmesh_entries(structure, max_kpoints_per_axis=4)
+    entries = build_gamma_kmesh_entries(structure, min_k_distance=0.25)
 
     assert entries[0].kindex == 1
     assert entries[0].mesh == (1, 1, 1)
@@ -69,7 +69,7 @@ def test_entry_payload_serializes_infinite_right_bound_as_none() -> None:
         natoms=2,
     )
 
-    payload = entry_payload(build_gamma_kmesh_entries(structure, max_kpoints_per_axis=2)[0])
+    payload = entry_payload(build_gamma_kmesh_entries(structure, min_k_distance=0.5)[0])
 
     assert payload["kindex"] == 1
     assert payload["k_mesh"] == (1, 1, 1)
@@ -86,11 +86,12 @@ def _structure(a: float, b: float, c: float, natoms: int = 1) -> Structure:
     )
 
 
-def test_ladder_never_skips_a_reachable_mesh() -> None:
-    # An anisotropic cell: the long axes exhaust their change points while the
-    # short one is still stepping, which is where an unbounded ladder starts
-    # jumping several meshes at once.
-    entries = build_gamma_kmesh_entries(_structure(2.5547, 2.5547, 0.6485), max_kpoints_per_axis=30)
+def test_ladder_is_gap_free_down_to_the_floor() -> None:
+    # An anisotropic cell: a per-axis k-point cap would let the long axes run
+    # out of change points while the short one is still stepping. A k-distance
+    # floor stops every axis at the same place, so the ladder is gap-free by
+    # construction.
+    entries = build_gamma_kmesh_entries(_structure(2.5547, 2.5547, 0.6485), min_k_distance=0.09)
     meshes = [entry.mesh for entry in entries]
 
     assert len(meshes) > 1
@@ -110,15 +111,23 @@ def test_ladder_never_repeats_a_mesh_for_degenerate_axes() -> None:
     assert meshes[:4] == [(1, 1, 1), (1, 2, 1), (2, 2, 2), (2, 3, 2)]
 
 
-def test_raising_the_axis_bound_only_extends_the_ladder() -> None:
-    # kindex is recorded in campaign snapshots and published records, so a
-    # larger enumeration must never renumber a rung that already existed.
+def test_lowering_the_floor_only_extends_the_ladder() -> None:
+    # kindex is recorded in campaign snapshots and published records, so a lower
+    # floor must never renumber a rung that already existed.
     structure = _structure(2.5547, 2.5547, 0.6485)
-    short = [entry.mesh for entry in build_gamma_kmesh_entries(structure, max_kpoints_per_axis=20)]
-    long = [entry.mesh for entry in build_gamma_kmesh_entries(structure, max_kpoints_per_axis=60)]
+    coarse = [entry.mesh for entry in build_gamma_kmesh_entries(structure, min_k_distance=0.1)]
+    fine = [entry.mesh for entry in build_gamma_kmesh_entries(structure, min_k_distance=0.02)]
 
-    assert len(long) > len(short)
-    assert long[: len(short)] == short
+    assert len(fine) > len(coarse)
+    assert fine[: len(coarse)] == coarse
+
+
+def test_ladder_stops_at_the_resolution_floor() -> None:
+    # The floor caps the densest mesh at ceil(|b_i| / min_k_distance) per axis,
+    # independent of any k-point count. 0.125 = 1/8 exactly, so no float noise.
+    entries = build_gamma_kmesh_entries(_structure(1.0, 1.0, 1.0), min_k_distance=0.125)
+
+    assert entries[-1].mesh == (8, 8, 8)
 
 
 def test_kindex_is_contiguous_and_one_based() -> None:

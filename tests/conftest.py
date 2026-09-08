@@ -18,7 +18,7 @@ DATASET_RECORD = {
         {"name": "source_db_id", "dtype": "str"},
         {"name": "k_index", "dtype": "int", "definition": "kmesh_ladder_rung"},
     ],
-    "conventions": {"kmesh_ladder": {"base": 0, "max_kpoints_per_axis": 50}},
+    "conventions": {"kmesh_ladder": {"base": 1, "min_k_distance": 0.03}},
     "provenance": {"code": "quantum_espresso", "calculation": "scf", "spin": "none"},
 }
 

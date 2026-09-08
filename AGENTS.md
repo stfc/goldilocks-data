@@ -78,15 +78,16 @@ record keeps the convention it was published with, so a consumer must read the
 base from the record rather than assume it.
 
 The ladder is built from the k-distances at which `ceil(|b_i| / k_distance)`
-changes on any axis — that is, from `|b_i| / n`. The enumeration cap on `n` is
-applied per axis, so axes with different `|b_i|` exhaust their breakpoints at
-different k-distances: the ladder is a complete set of meshes only for
-`k_distance >= max(|b_i|) / n_max`, and below that it silently skips reachable
-meshes. Any recomputation or published `k_index` column must state the cap it
-used.
+changes on any axis — that is, from `|b_i| / n`. Enumeration stops at a
+resolution floor `min_k_distance` (default `0.03` Å⁻¹, on the solid-state 2π
+lengths — the AiiDA-QuantumESPRESSO convention). The floor is the same for every
+axis, so all axes stop together and the ladder is a complete, gap-free set of
+meshes over the whole `[min_k_distance, ∞)` range. Any recomputation or
+published `k_index` column must state the floor it used; a `k_index` from a
+different floor is comparable only where the two ranges overlap.
 
-This convention is shared with `goldilocks-core`. Changing it invalidates every
-`k_index` value already recorded or trained on.
+This convention must stay in step with `goldilocks-core` and `goldilocks-ml`.
+Changing it invalidates every `k_index` value already recorded or trained on.
 
 ## Commands
 

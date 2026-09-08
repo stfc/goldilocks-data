@@ -126,11 +126,11 @@ def test_validate_dataset_record_rejects_a_column_without_a_dtype(dataset_record
 
 def test_validate_dataset_record_keeps_the_kmesh_convention(dataset_record: dict) -> None:
     # The convention block is why this file exists: a k_index with no stated
-    # base and no stated enumeration bound is not reproducible.
+    # base and no stated resolution floor is not reproducible.
     ladder = validate_dataset_record(dataset_record)["conventions"]["kmesh_ladder"]
 
-    assert ladder["base"] == 0
-    assert ladder["max_kpoints_per_axis"] == 50
+    assert ladder["base"] == 1
+    assert ladder["min_k_distance"] == 0.03
 
 
 def test_parse_sha256sums_accepts_binary_mode_lines() -> None:

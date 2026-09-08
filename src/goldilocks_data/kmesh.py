@@ -4,6 +4,14 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
+from goldilocks_data.sweeps.models import SweepAxis, SweepPoint
+
+# Resolution floor for the k-mesh ladder, in Angstrom^-1 on the solid-state
+# (2*pi) reciprocal lattice -- the same convention as AiiDA-QuantumESPRESSO
+# k-distance. Change points denser than this are not enumerated, and this value
+# is part of every recorded ``kindex``: a rung means nothing without it.
+MIN_K_DISTANCE = 0.03
+
 
 @dataclass(frozen=True, slots=True)
 class KMeshEntry:
@@ -30,25 +38,28 @@ def k_distance_to_mesh(structure: Any, k_distance: float) -> tuple[int, int, int
     return tuple(max(1, math.ceil(round(length / k_distance, 5))) for length in lengths)
 
 
-def generate_candidate_k_distances(structure: Any, max_kpoints_per_axis: int = 50) -> list[float]:
-    """Return the k-distances at which any axis changes its k-point count.
+def generate_candidate_k_distances(structure: Any, min_k_distance: float = MIN_K_DISTANCE) -> list[float]:
+    """Return every k-distance at which some axis changes its k-point count.
 
-    ``mesh_i = ceil(|b_i| / k_distance)`` steps from ``n`` to ``n + 1`` exactly at
-    ``k_distance = |b_i| / n``, so those quotients are the only distances where
-    the mesh can change.
+    ``mesh_i = ceil(|b_i| / k_distance)`` steps from ``n`` to ``n + 1`` exactly
+    at ``k_distance = |b_i| / n``, so those quotients are the only distances
+    where the mesh can change.
 
-    ``max_kpoints_per_axis`` bounds ``n`` — how many k-points per axis are
-    enumerated. It is *not* a bound on the number of rungs, which is roughly the
-    number of distinct axis lengths times the bound. Because the bound applies
-    per axis and the axes have different ``|b_i|``, they exhaust their quotients
-    at different distances: the returned list is a complete set of change points
-    only down to ``max(|b_i|) / max_kpoints_per_axis``. See
-    ``build_gamma_kmesh_entries`` for what that implies.
+    ``min_k_distance`` is the resolution floor in Angstrom^-1 on the solid-state
+    (2*pi) reciprocal lattice; quotients below it are not enumerated. The floor
+    is identical for every axis, so all axes run out of change points together
+    and the returned list is a complete set of change points over the whole
+    ``[min_k_distance, inf)`` range -- there is no region where a reachable mesh
+    is silently skipped.
     """
 
     lengths = _reciprocal_lengths(structure)
     return sorted(
-        {round(length / index, 8) for length in lengths for index in range(1, max_kpoints_per_axis + 1)},
+        {
+            round(length / index, 8)
+            for length in lengths
+            for index in range(1, max(1, math.floor(length / min_k_distance)) + 1)
+        },
         reverse=True,
     )
 
@@ -76,7 +87,7 @@ def _n_reduced_kpoints(structure: Any, mesh: tuple[int, int, int]) -> int:
         return full_mesh_size
 
 
-def build_gamma_kmesh_entries(structure: Any, max_kpoints_per_axis: int = 50) -> list[KMeshEntry]:
+def build_gamma_kmesh_entries(structure: Any, min_k_distance: float = MIN_K_DISTANCE) -> list[KMeshEntry]:
     """Build the unshifted, Gamma-inclusive k-mesh ladder for a structure.
 
     ``kindex`` is 1-based and rung 1 is the Gamma-only ``(1, 1, 1)`` mesh, which
@@ -84,23 +95,17 @@ def build_gamma_kmesh_entries(structure: Any, max_kpoints_per_axis: int = 50) ->
 
     The rung is an ordinal position on this structure's ladder and counts
     nothing. It equals the densest axis count only where the axes step together,
-    as in a cubic cell: for ``|b| = [1.6106, 1.6106, 0.8704]`` rung 3 is
-    ``(2, 2, 2)``, whose densest axis carries 2. The same rung is a different
-    mesh for a different cell.
+    as in a cubic cell.
 
-    The ladder is complete and non-repeating:
-
-    * It stops at the first rung where an axis count would rise by more than one.
-      Once the longest axis has used up its enumerated quotients its count keeps
-      rising with no candidate marking the change, so adjacent candidates span
-      several meshes and probing the midpoint keeps only one of them. A jump
-      greater than one is exactly that condition.
-    * It skips a mesh already on the ladder. Axes with equal ``|b_i|`` share
-      their change points, so two consecutive intervals can yield the same mesh;
-      without this, two ``kindex`` values would name one mesh.
+    The ladder is complete and non-repeating down to ``min_k_distance``: every
+    change point above the floor is enumerated, so consecutive rungs differ by
+    at most one k-point on each axis and no reachable mesh is skipped. A mesh
+    already on the ladder is dropped -- axes with equal ``|b_i|`` share their
+    change points, so two consecutive intervals can yield the same mesh, and
+    without the skip two ``kindex`` values would name one mesh.
     """
 
-    candidates = generate_candidate_k_distances(structure, max_kpoints_per_axis)
+    candidates = generate_candidate_k_distances(structure, min_k_distance)
     if not candidates:
         return []
 
@@ -110,11 +115,7 @@ def build_gamma_kmesh_entries(structure: Any, max_kpoints_per_axis: int = 50) ->
 
     entries: list[KMeshEntry] = []
     seen: set[tuple[int, int, int]] = set()
-    previous: tuple[int, int, int] | None = None
     for mesh, interval in intervals:
-        if previous is not None and any(now - before > 1 for before, now in zip(previous, mesh, strict=True)):
-            break
-        previous = mesh
         if mesh in seen:
             continue
         seen.add(mesh)
@@ -147,3 +148,29 @@ def entry_payload(entry: KMeshEntry) -> dict[str, Any]:
         "k_dist_left": float(left),
         "k_dist_right": None if math.isinf(right) else float(right),
     }
+
+
+def kindex_points(structure: object, kindex_min: int, kindex_max: int) -> tuple[SweepPoint, ...]:
+    """Build explicit sweep points for a gamma-inclusive kindex range.
+
+    ``kindex_min`` and ``kindex_max`` are rungs, not list positions: rung 1 is
+    the Gamma-only mesh and lives at index 0.
+    """
+
+    entries = build_gamma_kmesh_entries(structure)
+    selected = [entry for entry in entries if int(kindex_min) <= entry.kindex <= int(kindex_max)]
+    points: list[SweepPoint] = []
+    for entry in selected:
+        points.append(
+            SweepPoint(
+                axis_values={SweepAxis.KINDEX.value: int(entry.kindex)},
+                k_mesh=entry.mesh,
+                extras={
+                    "kindex": int(entry.kindex),
+                    "k_mesh": list(entry.mesh),
+                    "k_pra": entry.k_pra,
+                    "n_reduced_kpoints": entry.n_reduced_kpoints,
+                },
+            )
+        )
+    return tuple(points)
