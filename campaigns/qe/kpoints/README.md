@@ -9,7 +9,7 @@ PseudoDojo PBEsol campaign and the SSSP comparison analysis.
 ```text
 kpoints/
   campaign.yaml       human-readable campaign configuration
-  scripts/            initial submission, extension, and monitoring
+  scripts/            extension and monitoring
   notebooks/          curated analysis and visualisation
   results/            snapshot, summary, and provenance manifest
 ```
@@ -49,8 +49,6 @@ uv run --extra aiida --extra kmesh python campaigns/qe/kpoints/scripts/monitor.p
 ```
 
 The monitor calls `extend.py` in a fresh process. Stop it with `Ctrl-C`.
-`submit_initial.py` is for the original seed campaign and additionally needs
-the historical convergence summary files; run `--help` for its full interface.
 
 ## Convergence definition
 
