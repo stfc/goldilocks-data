@@ -80,9 +80,13 @@ def build_gamma_kmesh_entries(structure: Any, max_kpoints_per_axis: int = 50) ->
     """Build the unshifted, Gamma-inclusive k-mesh ladder for a structure.
 
     ``kindex`` is 1-based and rung 1 is the Gamma-only ``(1, 1, 1)`` mesh, which
-    the first probe always yields because it sits above every ``|b_i|``. The
-    rung therefore counts k-points on the densest axis of the coarsest mesh it
-    could be: rung n is reached when some axis first needs n k-points.
+    the first probe always yields because it sits above every ``|b_i|``.
+
+    The rung is an ordinal position on this structure's ladder and counts
+    nothing. It equals the densest axis count only where the axes step together,
+    as in a cubic cell: for ``|b| = [1.6106, 1.6106, 0.8704]`` rung 3 is
+    ``(2, 2, 2)``, whose densest axis carries 2. The same rung is a different
+    mesh for a different cell.
 
     The ladder is complete and non-repeating:
 

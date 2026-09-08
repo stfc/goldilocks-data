@@ -8,6 +8,8 @@
     "ultra_mev_per_atom": 1.0,
     "min_tail_points": 3
   },
+  "kindex_base": 1,
+  "max_kpoints_per_axis": 50,
   "generated_at": "2026-09-01T10:57:50.063094+00:00",
   "workchain_count": 127921,
   "source_count": 16208,
