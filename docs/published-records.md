@@ -7,10 +7,39 @@ identifier and can be cited.
 These are snapshots. The AiiDA database remains the authoritative calculation
 record; a published dataset is a documented view of it at one point in time.
 
-## Quantum ESPRESSO no-spin SCF calculations (SSSP, K-index)
+## Quantum ESPRESSO no-spin SCF calculations (SSSP, k-index)
+
+[`52713-55d86`](https://data-collections.psdi.ac.uk/records/52713-55d86) · v1.0 ·
+CC BY 4.0
+
+The current SSSP k-index dataset: the converged k-point mesh for 17,757 MC3D
+structures, numbered on the **1-based** ladder (rung 1 the Γ-only `(1, 1, 1)`
+mesh) and built with the resolution floor `min_k_distance = 0.03` Å⁻¹ rather
+than a per-axis k-point cap. No spin polarisation, SSSP PBEsol pseudopotentials,
+every mesh unshifted and therefore gamma-inclusive.
+
+Convergence is the first of three consecutive ladder meshes whose total energies
+agree within **1 meV per atom**. Energy only — no force criterion.
+
+| File | Contents |
+| --- | --- |
+| `convergence_summary.csv` | 17,757 rows: `source_db_id`, `k_index`, `k_dist_interval`, `k_mesh` |
+| `CIF_files.tar.gz` | 18,220 structures, `CIF_files/<source_db_id>.cif` |
+
+`k_index` here needs both its base and its floor to mean anything; the record's
+`README.md` and `manifest.json` carry both. It supersedes `d5ds2-64f16` below,
+which is 0-based and used a per-axis enumeration bound of 50.
+
+See [convergence criteria](reference/convergence.md) for how labels are assigned,
+and the record's own `README.md` for the full definition and reproduction code.
+
+## Quantum ESPRESSO no-spin SCF calculations (SSSP, k-index) — superseded
 
 [`d5ds2-64f16`](https://data-collections.psdi.ac.uk/records/d5ds2-64f16) · v1 ·
 CC BY 4.0
+
+Superseded by [`52713-55d86`](https://data-collections.psdi.ac.uk/records/52713-55d86)
+above; kept for citations that already reference it. The record is not rewritten.
 
 The converged k-point mesh for 17,757 MC3D structures. No spin polarisation,
 SSSP PBEsol pseudopotentials, every mesh unshifted and therefore
