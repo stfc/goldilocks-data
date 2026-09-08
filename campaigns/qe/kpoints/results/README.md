@@ -1,20 +1,29 @@
 # Result snapshot
 
-This directory is the portable analysis snapshot for the PseudoDojo QE SCF
-k-point campaign.
+This directory is the analysis snapshot for the PseudoDojo QE SCF k-point
+campaign. It has two tracked files and two local ones.
+
+**Tracked** — small, and the record of what the last export saw:
 
 | File | Purpose |
 | --- | --- |
-| `snapshot-metadata.json` | AiiDA profile, group, thresholds, timestamp, and row counts |
+| `snapshot-metadata.json` | AiiDA profile, group, thresholds, ladder convention, timestamp, and counts |
+| `manifest.json` | Dataset identity and the names of the files below |
+
+**Local, not in git** — regenerated from the AiiDA group in the metadata, and
+too large and churny to version:
+
+| File | Purpose |
+| --- | --- |
 | `source-summary.csv` | One row per structure with convergence classification |
 | `workchain-records.parquet` | Per-WorkChain values used to rebuild the summary |
-| `manifest.json` | Dataset identity and relationships between the files |
 
-Every `kindex` column here is **1-based**, with rung 1 the Γ-only `(1, 1, 1)`
-mesh, built with a per-axis enumeration bound of 50. Both are recorded in
-`snapshot-metadata.json` as `kindex_base` and `max_kpoints_per_axis`; read them
-from there rather than assuming, because a rung means nothing without its
-ladder.
+`extend.py` reads all four from `--snapshot-dir` (this directory by default), so
+rebuild `source-summary.csv` and `workchain-records.parquet` here before running
+a cycle. The campaign publishes to PSDI when it finishes; until then the AiiDA
+group is the authoritative record and these tables are a dated local view of it.
 
-The AiiDA group named in the metadata is the authoritative provenance source.
-These files are a dated export, not a replacement for the AiiDA database.
+Every `kindex` column is **1-based**, rung 1 the Γ-only `(1, 1, 1)` mesh. The
+base and the enumeration bound that built the ladder are in
+`snapshot-metadata.json` (`kindex_base`, `max_kpoints_per_axis`); read them from
+there, because a rung means nothing without its ladder.

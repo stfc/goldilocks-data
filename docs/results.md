@@ -1,7 +1,7 @@
 # Results
 
-The exported snapshot is a portable view of the PseudoDojo QE SCF k-point
-campaign. The AiiDA group remains the authoritative calculation record.
+A dated view of the PseudoDojo QE SCF k-point campaign. The AiiDA group remains
+the authoritative calculation record.
 
 ## Current snapshot
 
@@ -13,16 +13,23 @@ campaign. The AiiDA group remains the authoritative calculation record.
 | Ultra rate | 95.47% |
 | Median ultra kindex | 4 |
 
-Snapshot date: 1 September 2026.
+Snapshot date: 1 September 2026. These figures are taken from
+[`snapshot-metadata.json`](https://github.com/stfc/goldilocks-data/blob/main/campaigns/qe/kpoints/results/snapshot-metadata.json).
 
-## Download or inspect
+## The snapshot files
 
-| File | Use it for | Link |
+| File | Use it for | Where |
 | --- | --- | --- |
-| `source-summary.csv` | One convergence summary row per structure | [Download](https://raw.githubusercontent.com/stfc/goldilocks-data/main/campaigns/qe/kpoints/results/source-summary.csv) |
-| `workchain-records.parquet` | Calculation-level values behind the summary | [Download](https://github.com/stfc/goldilocks-data/raw/refs/heads/main/campaigns/qe/kpoints/results/workchain-records.parquet) |
-| `snapshot-metadata.json` | Profile, AiiDA group, thresholds, timestamp, and counts | [Inspect](https://github.com/stfc/goldilocks-data/blob/main/campaigns/qe/kpoints/results/snapshot-metadata.json) |
-| `analysis.ipynb` | Aggregation, quality checks, and SSSP comparison | [Inspect](https://github.com/stfc/goldilocks-data/blob/main/campaigns/qe/kpoints/notebooks/analysis.ipynb) |
+| `snapshot-metadata.json` | Profile, AiiDA group, thresholds, ladder convention, timestamp, counts | [in the repo](https://github.com/stfc/goldilocks-data/blob/main/campaigns/qe/kpoints/results/snapshot-metadata.json) |
+| `manifest.json` | Dataset identity and the file names | [in the repo](https://github.com/stfc/goldilocks-data/blob/main/campaigns/qe/kpoints/results/manifest.json) |
+| `source-summary.csv` | One convergence-summary row per structure | regenerated locally |
+| `workchain-records.parquet` | Calculation-level values behind the summary | regenerated locally |
+| `analysis.ipynb` | Aggregation, quality checks, SSSP comparison | [in the repo](https://github.com/stfc/goldilocks-data/blob/main/campaigns/qe/kpoints/notebooks/analysis.ipynb) |
+
+`source-summary.csv` and `workchain-records.parquet` are rebuilt from the AiiDA
+group every campaign cycle and are not versioned; see
+[`campaigns/qe/kpoints/results/README.md`](https://github.com/stfc/goldilocks-data/blob/main/campaigns/qe/kpoints/results/README.md).
+They go to PSDI as a citable record when the campaign finishes.
 
 ## Provenance
 
@@ -33,5 +40,5 @@ For the live PseudoDojo campaign, the group is:
 goldilocks/qe-scf/nospin/pseudodojo
 ```
 
-Use the exported tables for analysis. Return to AiiDA when you need the
-original inputs, outputs, process state, or provenance graph.
+Return to AiiDA when you need the original inputs, outputs, process state, or
+provenance graph.
