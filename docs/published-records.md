@@ -10,8 +10,9 @@ record; a published dataset is a documented view of it at one point in time.
 ## Quantum ESPRESSO no-spin SCF k-point convergence
 
 Two records, one body of calculations. Same structures, same settings, same
-`pw.x` runs — they differ in what was extracted. Produced by the
-[QE SCF k-point campaign](campaigns/qe-kpoints.md).
+`pw.x` runs — they differ in what was extracted. See
+[QE SCF k-point sweeps](calculations/qe-kpoints.md) for the settings and how to
+run them yourself.
 
 ### `52713-55d86` — the converged mesh per structure
 
@@ -69,7 +70,8 @@ k-distances directly, not a `k_index`.
 [`r3byg-xp284`](https://data-collections.psdi.ac.uk/records/r3byg-xp284) · v1 ·
 CC BY 4.0
 
-Produced by the [QE nscf band campaign](campaigns/qe-nscf-bands.md).
+See [QE nscf band structures](calculations/qe-nscf-bands.md) for the settings
+and how to run them yourself.
 
 Non-self-consistent band-structure calculations for **19,405 MC3D structures**:
 one summary row per material, the primitive cell the bands were computed on, and
@@ -111,7 +113,8 @@ mistaken for this one.
 
 The eigenvalue tables as calculated carried no k-point coordinates. The path
 came from SeeKpath through the standard `PwBandsWorkChain`, so it was
-regenerated per structure — the campaign did not use a single sampling density,
+regenerated per structure — the calculations did not use a single sampling
+density,
 so the density was determined structure by structure.
 
 A reconstruction was accepted only when it matched the calculation's own record

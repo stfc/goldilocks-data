@@ -12,8 +12,6 @@
 # .claude/skills symlinks to it. CLAUDE.md stays local.
 CLAUDE.md
 
-# Historical working copies remain local; the curated notebook lives beside them.
-campaigns/**/notebooks/archive/
 .notebooks-orig-backup-*.tar.gz
 
 # Local exploratory material and internal planning are not public artefacts.
@@ -24,8 +22,3 @@ campaigns/**/notebooks/archive/
 
 # Intermediate analysis caches are reproducible and can be large.
 *.pkl
-
-# The PseudoDojo working snapshot is regenerated every cycle from the AiiDA
-# group in snapshot-metadata.json; only the small metadata stays tracked.
-/campaigns/qe/kpoints/results/source-summary.csv
-/campaigns/qe/kpoints/results/workchain-records.parquet

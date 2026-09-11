@@ -150,7 +150,7 @@ would take two `kindex` values.
 Axes of *exactly* equal length do not cause this: they produce the same
 quotients, which collapse in the candidate set before any mesh is computed. It
 takes a near miss, so it is rare and real — 36 of the 20,826 MC3D structures in
-the SCF campaign hit it, and no idealised lattice does. `tests/test_kmesh.py`
+the SCF sweeps hit it, and no idealised lattice does. `tests/test_kmesh.py`
 pins one of them, MC3D 67775, whose `a` and `b` agree to about eleven decimal
 places.
 
