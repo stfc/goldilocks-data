@@ -4,6 +4,8 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 from goldilocks_data.sweeps.models import SweepAxis, SweepPoint
 
 # Resolution floor for the k-mesh ladder, in Angstrom^-1 on the solid-state
@@ -75,18 +77,6 @@ def mesh_to_k_line_density_interval(structure: Any, mesh: tuple[int, int, int]) 
     return (float(lower), float(upper))
 
 
-def _n_reduced_kpoints(structure: Any, mesh: tuple[int, int, int]) -> int:
-    full_mesh_size = int(mesh[0] * mesh[1] * mesh[2])
-    try:
-        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-    except ImportError:
-        return full_mesh_size
-    try:
-        return len(SpacegroupAnalyzer(structure).get_ir_reciprocal_mesh(mesh=mesh, is_shift=(0, 0, 0)))
-    except AttributeError:
-        return full_mesh_size
-
-
 def build_gamma_kmesh_entries(structure: Any, min_k_distance: float = MIN_K_DISTANCE) -> list[KMeshEntry]:
     """Build the unshifted, Gamma-inclusive k-mesh ladder for a structure.
 
@@ -103,11 +93,25 @@ def build_gamma_kmesh_entries(structure: Any, min_k_distance: float = MIN_K_DIST
     already on the ladder is dropped -- axes with equal ``|b_i|`` share their
     change points, so two consecutive intervals can yield the same mesh, and
     without the skip two ``kindex`` values would name one mesh.
+
+    ``structure`` must be a real pymatgen ``Structure``: every rung is reduced by
+    symmetry, and a structure that cannot be analysed raises rather than yielding
+    an unreduced count.
     """
 
     candidates = generate_candidate_k_distances(structure, min_k_distance)
     if not candidates:
         return []
+
+    # One analyser for the whole ladder: it depends on the structure alone, and
+    # the reduction is by far the most expensive part of building a deep ladder.
+    #
+    # It is deliberately not guarded. ``n_reduced_kpoints`` and the full mesh
+    # size are both ordinary integers, so a caller cannot tell a fallback from a
+    # real count -- and a cubic cell reduces by up to 48. goldilocks-core ports
+    # this module to size memory and to choose ``npool``, where a silently wrong
+    # value is far more dangerous than a raised error.
+    symmetry = SpacegroupAnalyzer(structure)
 
     intervals = [(k_distance_to_mesh(structure, candidates[0] + 1.0), (candidates[0], math.inf))]
     for upper, lower in zip(candidates[:-1], candidates[1:], strict=True):
@@ -130,7 +134,7 @@ def build_gamma_kmesh_entries(structure: Any, min_k_distance: float = MIN_K_DIST
                 k_distance_interval=interval,
                 k_line_density_interval=line_interval,
                 k_pra=float(len(structure) * mesh[0] * mesh[1] * mesh[2]),
-                n_reduced_kpoints=_n_reduced_kpoints(structure, mesh),
+                n_reduced_kpoints=len(symmetry.get_ir_reciprocal_mesh(mesh=mesh, is_shift=(0, 0, 0))),
             )
         )
     return entries

@@ -110,12 +110,18 @@ pymatgen's `SpacegroupAnalyzer.get_ir_reciprocal_mesh`. This is what the
 calculation actually costs. For `100115` at `kindex 21`: **120**, against a full
 mesh of 1568.
 
-!!! note "It falls back to the full mesh size"
+!!! warning "It never falls back to the full mesh size"
 
-    If pymatgen is not installed, or the structure does not expose the API, the
-    value returned is `n1 * n2 * n3` — the unreduced count. No error is raised,
-    so a value equal to the full mesh size may mean "no symmetry found" or "not
-    computed". Install the `kmesh` extra before relying on it.
+    A structure that cannot be reduced raises. The reduced count and the full
+    mesh size are both ordinary integers, so a caller cannot tell a fallback
+    from a real answer — and a cubic cell reduces by up to 48, as the example
+    above shows. `goldilocks-core` ports this module to size memory and to
+    choose `npool`, where a silently wrong value is far more dangerous than an
+    error.
+
+    This is why `pymatgen` is a plain dependency rather than an extra: the
+    ladder reads the reciprocal lattice throughout and reduces every rung, so a
+    caller needs a real pymatgen `Structure` either way.
 
 ## The ladder {#the-ladder}
 
