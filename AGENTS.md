@@ -45,7 +45,8 @@ The package owns **reusable mechanics**:
 - convergence labelling from finished energies
 - finished remote-folder cleanup
 
-Notebooks and campaign scripts own **dataset-specific decisions**:
+Local scripts and notebooks, kept **outside this repository**, own
+**dataset-specific decisions**:
 
 - reading private CSV files
 - reading local CIF directories
@@ -57,7 +58,6 @@ A private path must never reach the package API.
 ## Layout
 
 ```text
-campaigns/<code>/<task>/   setup, scripts, notebook, result snapshot
 src/goldilocks_data/
   codes/                   DFT code identifiers
   intents/                 calculation intent identifiers
@@ -94,16 +94,16 @@ Changing it invalidates every `k_index` value already recorded or trained on.
 ```bash
 uv sync --group dev                                        # install with dev deps
 uv run pytest                                              # run tests
-uv run ruff check src tests campaigns/qe/kpoints/scripts   # lint
-uv run ruff format src tests campaigns/qe/kpoints/scripts  # format
+uv run ruff check src tests                                # lint
+uv run ruff format src tests                               # format
 
 uv sync --group docs && uv run mkdocs build --strict       # build the docs site
 ```
 
-Campaign scripts need the optional extras explicitly:
+Scripts that submit or query AiiDA need the optional extras explicitly:
 
 ```bash
-uv run --extra aiida --extra kmesh python campaigns/qe/kpoints/scripts/monitor.py --once --cif-dir /path/to/CIF_files
+uv run --extra aiida python /path/to/your/submit_sweep.py
 ```
 
 Use `uv`, not `pip`.
@@ -135,6 +135,10 @@ schedule is worth more than one that exercises a wrapper.
 - AiiDA workflows for other people's campaigns, scheduler scripts.
 - Jupyter notebooks — `notebooks/` is gitignored. Convert insights into tests.
 - Large data or pseudo libraries. Private CSV and CIF paths stay outside the repo.
+- The tooling that drives one concrete run: its controller scripts, its AiiDA
+  group and profile, its dated export tables. That is operational, not
+  reusable, and naming a live group in a public repository advertises work that
+  has not been published yet.
 
 ## Rules
 

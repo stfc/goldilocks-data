@@ -13,17 +13,16 @@ For each label, the selected kindex is the smallest point whose remaining tail
 satisfies the threshold. The oscillation is `max - min` over the whole tail, so
 a longer sweep can only make a label harder to earn, never easier.
 
-These three numbers are the campaign's, from
-[`campaign.yaml`](https://github.com/stfc/goldilocks-data/blob/main/campaigns/qe/kpoints/campaign.yaml).
+These three numbers are the ones the published records used.
 `ConvergenceThresholds` in the package defaults to 10 / 5 / 1 meV per atom, so
-pass the thresholds explicitly when reproducing a record rather than relying on
-the defaults.
+pass them explicitly when reproducing a record rather than relying on the
+defaults.
 
 ## Kindex meaning
 
 Kindex follows the current gamma-inclusive schedule. For one structure, an
 index maps deterministically to one distinct k-point mesh. Because lattice
-geometry changes that mapping, comparisons between pseudopotential campaigns
+geometry changes that mapping, comparisons between pseudopotential families
 use the actual mesh dimensions rather than assuming that equal numerical
 kindices mean equal meshes.
 

@@ -49,10 +49,10 @@ nav:
       - Install goldilocks-data: installation/package.md
       - AiiDA on macOS: installation/aiida-macos.md
       - Quantum ESPRESSO and SCARF: installation/qe-scarf.md
-  - Data campaigns:
-      - Overview: campaigns/index.md
-      - QE SCF k-points: campaigns/qe-kpoints.md
-      - QE nscf bands: campaigns/qe-nscf-bands.md
+  - Calculations:
+      - Overview: calculations/index.md
+      - QE SCF k-point sweeps: calculations/qe-kpoints.md
+      - QE nscf band structures: calculations/qe-nscf-bands.md
   - Publishing:
       - Published records: published-records.md
       - Publish a dataset: publishing.md

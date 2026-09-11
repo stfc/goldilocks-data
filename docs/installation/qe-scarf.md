@@ -16,16 +16,23 @@ The plugin list should contain entries beginning with `quantumespresso`.
 
 ## Install the pseudopotentials
 
-The current PseudoDojo campaign uses the PBEsol, scalar-relativistic,
-`standard` protocol:
+The published records use SSSP PBEsol:
+
+```bash
+aiida-pseudo install sssp -v 1.3 -x PBEsol -p efficiency
+verdi group list -a
+```
+
+```text
+SSSP/1.3/PBEsol/efficiency
+```
+
+PseudoDojo installs the same way, if you want to compare families:
 
 ```bash
 aiida-pseudo install pseudo-dojo \
   -v 0.4 -x PBEsol -r SR -p standard -f upf -s high
-verdi -p goldilocks group list -a
 ```
-
-Expected family:
 
 ```text
 PseudoDojo/0.4/PBEsol/SR/standard/upf
@@ -99,4 +106,4 @@ See the
 [official plugin installation guide](https://aiida-quantumespresso.readthedocs.io/en/latest/installation/index.html)
 for current compatibility information.
 
-Continue with [the QE SCF k-point campaign](../campaigns/qe-kpoints.md).
+Continue with [the QE SCF k-point sweeps](../calculations/qe-kpoints.md).

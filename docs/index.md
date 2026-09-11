@@ -12,8 +12,8 @@ Goldilocks learns those choices from systematic convergence calculations.
     Then you want [Goldilocks Core](https://github.com/stfc/goldilocks-core).
     Give it a structure and a calculation intent; it selects suitable inputs.
 
-    Read on if you want to reproduce a data campaign, inspect how convergence
-    was labelled, or use the exported records.
+    Read on if you want to rerun these calculations, inspect how convergence
+    was labelled, or use the published records.
 
 ## What this repository does
 
@@ -30,19 +30,22 @@ generation belongs in Goldilocks Core.
 
 ## What has been published
 
-Three records, from two campaigns, all on MC3D structures with Quantum ESPRESSO:
+Three records, from two sets of calculations, all on MC3D structures with
+Quantum ESPRESSO:
 
-| Campaign | Records |
+| Calculations | Records |
 | --- | --- |
-| [No-spin SCF k-point convergence](campaigns/qe-kpoints.md) | the converged mesh per structure, and the full per-calculation output behind the paper |
-| [nscf band structures](campaigns/qe-nscf-bands.md) | eigenvalues along the high-symmetry path, with Fermi level, metallicity and band gap |
+| [No-spin SCF k-point sweeps](calculations/qe-kpoints.md) | the converged mesh per structure, and the full per-calculation output behind the paper |
+| [nscf band structures](calculations/qe-nscf-bands.md) | eigenvalues along the high-symmetry path, with Fermi level, metallicity and band gap |
 
 Each [record](published-records.md) says what its columns mean and which
-conventions it froze; each campaign page says how to reproduce the calculations
-behind it.
+conventions it froze; each page under
+[Calculations](calculations/index.md) gives the settings, a script that runs the
+same calculations yourself, and what the published data can answer without
+running anything.
 
 ## Where to go
 
 [Published records](published-records.md){ .md-button .md-button--primary }
 [Install goldilocks-data](installation/package.md){ .md-button }
-[Data campaigns](campaigns/index.md){ .md-button }
+[How the data was made](calculations/index.md){ .md-button }

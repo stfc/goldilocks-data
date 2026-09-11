@@ -9,8 +9,8 @@ calculations.
 
 ## From the repository
 
-This is what you want for campaign work, because the campaign scripts and the
-notebook live in the repository too.
+This is what you want if you are going to run calculations, because you get the
+tests and the docs source alongside the package.
 
 ```bash
 git clone https://github.com/stfc/goldilocks-data.git
@@ -54,7 +54,7 @@ record.
 | Extra | Installs | Needed for |
 | --- | --- | --- |
 | `aiida` | `aiida-core`, `aiida-quantumespresso` | submitting sweeps, querying the database, remote-folder cleanup |
-| `kmesh` | `pyarrow` | reading the parquet campaign-record snapshots |
+| `kmesh` | `pyarrow` | reading parquet snapshots exported from an AiiDA group |
 | `publish` | `data-collections-api` | `goldilocks-data publish`, the PSDI deposit command |
 
 Add them to a clone with `--extra`:
@@ -66,15 +66,14 @@ uv sync --extra aiida --extra kmesh
 Or run a single command with the extras it needs and nothing else:
 
 ```bash
-uv run --extra aiida --extra kmesh python \
-  campaigns/qe/kpoints/scripts/monitor.py --once --cif-dir /path/to/CIF_files
+uv run --extra aiida python submit_sweep.py
 ```
 
 !!! note "The `kmesh` extra no longer matches its name"
 
     It once carried the k-mesh machinery. That moved into the base install when
-    `pymatgen` did, and what is left is the parquet reader the campaign scripts
-    need. The name is kept because campaign commands and shell history use it.
+    `pymatgen` did, and what is left is a parquet reader. The name is kept
+    because existing commands and shell history use it.
 
 The `aiida` extra installs the Python side only. A working AiiDA profile,
 services, and a configured computer and code are a separate setup — see
@@ -86,8 +85,8 @@ services, and a configured computer and code are a separate setup — see
 ```bash
 uv sync --group dev
 uv run pytest
-uv run ruff check src tests campaigns/qe/kpoints/scripts
-uv run ruff format src tests campaigns/qe/kpoints/scripts
+uv run ruff check src tests
+uv run ruff format src tests
 ```
 
 The docs site:

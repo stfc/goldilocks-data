@@ -6,7 +6,7 @@ How much you install depends on what you want to do.
 | --- | --- |
 | Build a k-mesh ladder, label convergence, read a published record | [the package](package.md) |
 | Publish a dataset to PSDI | the package with the `publish` extra |
-| Run or extend a data campaign | the package, then AiiDA, then Quantum ESPRESSO |
+| Run the calculations yourself | the package, then AiiDA, then Quantum ESPRESSO |
 
 Only the last one needs the full stack, and it has two further stages:
 

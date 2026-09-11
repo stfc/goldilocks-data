@@ -5,8 +5,9 @@ Reusable data-side tooling for Goldilocks DFT sweeps.
 User documentation: <https://stfc.github.io/goldilocks-data/>
 
 `goldilocks-data` is the execution and analysis layer around AiiDA-backed DFT
-campaigns. It keeps reusable mechanics in a Python package while leaving
-dataset-specific decisions in notebooks or local scripts.
+calculations. It keeps reusable mechanics in a Python package while leaving
+dataset-specific decisions in local scripts and notebooks outside the
+repository.
 
 ## Repository map
 
@@ -17,13 +18,9 @@ AiiDA is the only execution engine. The extensible axes are:
 - **sweep axis**: `kindex`, `pp`, `code`, `spin_type`, `nspin`, `magneticity`,
   `soc`, `smearing`, `cutoff`
 
-Campaign documentation is organised first by code and then by task:
-
 ```text
-campaigns/
-  qe/
-    kpoints/       # setup, scripts, notebook, and result snapshot
-src/               # reusable Python mechanics shared by campaigns
+src/               # reusable Python mechanics
+tests/             # regression tests, no private data
 docs/              # GitHub Pages site
 ```
 
@@ -64,13 +61,13 @@ Local notebooks or scripts own dataset-specific decisions:
 
 ```python
 from goldilocks_data.aiida import AiidaScfConfig, submit_scf_sweeps
+from goldilocks_data.kmesh import kindex_points
 from goldilocks_data.sweeps import ScfSweepSpec
-from goldilocks_data.sweeps.kindex import kindex_points
 
 config = AiidaScfConfig(
-    code_label="qe-7.5-pw-admin@scarf",
-    pseudo_family_label="PseudoDojo/0.4/PBEsol/SR/standard/upf",
-    group_label="goldilocks/qe-scf/nospin/pseudodojo",
+    code_label="pw-7.5@your-computer",
+    pseudo_family_label="SSSP/1.3/PBEsol/efficiency",
+    group_label="my-kpoint-sweep",
 )
 
 summary = submit_scf_sweeps(
@@ -78,7 +75,7 @@ summary = submit_scf_sweeps(
         ScfSweepSpec(
             source_db_id="100115",
             structure=structure,
-            points=kindex_points(structure, 0, 22),
+            points=kindex_points(structure, 1, 22),  # rungs are 1-based
         )
     ],
     config,
@@ -94,54 +91,24 @@ exists.
 Dry-run cleanup:
 
 ```bash
-goldilocks-data cleanup-qe-scf --group-label goldilocks/qe-scf/nospin/pseudodojo
+goldilocks-data cleanup-qe-scf --group-label my-kpoint-sweep
 ```
 
 Delete non-retained files:
 
 ```bash
-goldilocks-data cleanup-qe-scf --group-label goldilocks/qe-scf/nospin/pseudodojo --execute
+goldilocks-data cleanup-qe-scf --group-label my-kpoint-sweep --execute
 ```
 
 Cleanup keeps `aiida.in`, `aiida.out`, XML files, submit scripts, and scheduler
 logs. Per-remote failures are collected and do not stop the whole cleanup run.
-
-## Current campaign
-
-This repository also contains a local controller script for the current
-Goldilocks no-spin QE SCF kindex campaign. It deliberately keeps private CSV
-and CIF paths outside the reusable package API.
-
-Preview the next cycle:
-
-```bash
-uv run --extra aiida --extra kmesh python campaigns/qe/kpoints/scripts/monitor.py --once --cif-dir /path/to/CIF_files
-```
-
-Run one real cycle:
-
-```bash
-uv run --extra aiida --extra kmesh python campaigns/qe/kpoints/scripts/monitor.py --execute --cif-dir /path/to/CIF_files
-```
-
-Each cycle:
-
-1. loads a fresh AiiDA profile in a fresh Python process
-2. checks the number of active WorkChains
-3. cleans finished remote folders up to `--cleanup-limit`
-4. selects `source_db_id` values that are not permanently failed and do not yet have the
-   full `kindex=0..kindex_max` range
-5. submits only missing kindex points, using AiiDA extras for de-duplication
-
-See [`campaigns/qe/kpoints/README.md`](campaigns/qe/kpoints/README.md) for plugin setup,
-campaign settings, analysis, and the result snapshot.
 
 ## Development
 
 ```bash
 uv sync --group dev
 uv run pytest
-uv run ruff check src tests campaigns/qe/kpoints/scripts
+uv run ruff check src tests
 ```
 
 Build the documentation site:
