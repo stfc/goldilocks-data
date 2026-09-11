@@ -52,7 +52,7 @@ nav:
   - Data campaigns:
       - Overview: campaigns/index.md
       - QE SCF k-points: campaigns/qe-kpoints.md
-      - Results: results.md
+      - QE nscf bands: campaigns/qe-nscf-bands.md
   - Publishing:
       - Published records: published-records.md
       - Publish a dataset: publishing.md
