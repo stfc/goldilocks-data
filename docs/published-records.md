@@ -56,6 +56,71 @@ and it is the raw per-calculation dump rather than a convergence-label table.
 This record predates the k-mesh ladder convention and carries meshes and
 k-distances directly, not a `k_index`.
 
+## Quantum ESPRESSO band structures (MC3D, nscf)
+
+<!-- Placeholder: replace with the record link and version once the PSDI draft
+     is reviewed and submitted. -->
+*Record link to be added — the deposit is with PSDI and not yet published.* ·
+CC BY 4.0
+
+Non-self-consistent band-structure calculations for **19,405 MC3D structures**:
+one summary row per material, the primitive cell the bands were computed on, and
+the eigenvalues along the high-symmetry k-point path. Every structure has all
+three — there is no row without a structure file and none without a band table.
+
+Same settings and the same family of structures as the k-index record above.
+That one answers *which mesh is dense enough*; this one answers *what the band
+structure says about the material*.
+
+| File | Contents |
+| --- | --- |
+| `nscf_band_summary.csv` | 19,405 rows: identifiers, Fermi energy, `metallicity`, `band_gap_ev` |
+| `CIF_files.tar.gz` | 19,405 primitive cells, `CIF_files/<source_db_id>.cif` |
+| `bands.tar.gz` | 19,405 eigenvalue tables, `bands/<source_db_id>.csv` |
+| `example.py` | Loads all three from the tarballs and plots one band structure |
+
+9,854 rows are `metal` and 9,551 `insulator`. `band_gap_ev` is populated for
+exactly the insulators and empty for exactly the metals.
+
+### `metallicity` is a zero threshold, not a physical one
+
+A row is `insulator` when the band structure has a gap at the Fermi level, with
+no tolerance at all: the smallest gap in the table is **0.0016 eV**, and nothing
+was rounded down. A PBEsol gap of a few meV is well inside the error of the
+method, and a practitioner would treat such a system as metallic.
+
+No thresholded label is published. A threshold frozen into an immutable record
+becomes a convention every consumer then has to discover and match — the same
+failure that forced the first dataset's `k_index` column to be recomputed
+wholesale. The gap is the fact; the cut belongs to the person using it, and
+`band_gap_ev` is published raw so it can be made.
+
+Anything downstream that trains on this column should name the threshold in
+its own target name, so that a later dataset built on a different cut cannot be
+mistaken for this one.
+
+### The k-point coordinates were reconstructed, and checked
+
+The eigenvalue tables as calculated carried no k-point coordinates. The path
+came from SeeKpath through the standard `PwBandsWorkChain`, so it was
+regenerated per structure — the campaign did not use a single sampling density,
+so the density was determined structure by structure.
+
+A reconstruction was accepted only when it matched the calculation's own record
+of the labelled points on **all four** of: number of k-points, labels, label
+positions in the table, and label coordinates. That makes the match a
+verification rather than an assumption, and it doubles as a detector.
+
+Two groups are excluded from the record entirely — structure, summary row and
+bands alike:
+
+| Excluded | Why |
+| --- | --- |
+| 104 structures | the regenerated path did not match, rather than publish coordinates that might not be theirs |
+| 80 structures | their eigenvalue tables were not in the working archive |
+
+The eigenvalues themselves are copied unchanged from the calculation output.
+
 ## Publishing another one
 
 See [Publish a dataset](publishing.md).
