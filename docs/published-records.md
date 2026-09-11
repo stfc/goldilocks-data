@@ -7,13 +7,18 @@ identifier and can be cited.
 These are snapshots. The AiiDA database remains the authoritative calculation
 record; a published dataset is a documented view of it at one point in time.
 
-## Quantum ESPRESSO no-spin SCF calculations (SSSP, k-index)
+## Quantum ESPRESSO no-spin SCF k-point convergence
+
+Two records, one body of calculations. Same structures, same settings, same
+`pw.x` runs — they differ in what was extracted. Produced by the
+[QE SCF k-point campaign](campaigns/qe-kpoints.md).
+
+### `52713-55d86` — the converged mesh per structure
 
 [`52713-55d86`](https://data-collections.psdi.ac.uk/records/52713-55d86) · v2.0 ·
 CC BY 4.0
 
-The current SSSP k-index dataset: the converged k-point mesh for 17,757 MC3D
-structures, numbered on the **1-based** ladder (rung 1 the Γ-only `(1, 1, 1)`
+The converged k-point mesh for 17,757 MC3D structures, numbered on the **1-based** ladder (rung 1 the Γ-only `(1, 1, 1)`
 mesh) and built with the resolution floor `min_k_distance = 0.03` Å⁻¹ rather
 than a per-axis k-point cap. No spin polarisation, SSSP PBEsol pseudopotentials,
 every mesh unshifted and therefore gamma-inclusive.
@@ -37,39 +42,42 @@ rather than assuming.
 See [convergence criteria](reference/convergence.md) for how labels are assigned,
 and the record's own `README.md` for the full definition and reproduction code.
 
-## Quantum ESPRESSO no-spin SCF calculations (SSSP, k-distance)
+### `mcpnq-g1j55` — the full per-calculation dump
 
 [`mcpnq-g1j55`](https://data-collections.psdi.ac.uk/records/mcpnq-g1j55) ·
 CC BY 4.0
 
 The complete DFT data behind *Automatic generation of input files with optimised
 k-point meshes for Quantum ESPRESSO self-consistent field total energy
-calculations* — the training set for the paper's machine-learning models. Same
-family of calculations as the k-index record above, expressed as a k-distance,
-and it is the raw per-calculation dump rather than a convergence-label table.
+calculations* — the training set for the paper's machine-learning models. The
+same calculations as the record above, expressed as a k-distance, and a raw
+per-calculation dump rather than a convergence-label table. Take this one when
+you want the QE outputs themselves: cutoffs, Fermi level, symmetry counts, wall
+time.
 
 | File | Contents |
 | --- | --- |
+| `data.tar.gz` | Unpacks to the two entries below |
 | `summary.csv` | Per-material k-point convergence: Goldilocks-optimised mesh, MC3D reference mesh, k-distance metrics, and medium / well / ultra levels |
 | `structure_calc_details/` | One directory per structure: the `.cif` plus the full QE output (energies, cutoffs, Fermi level, symmetry counts, wall time, convergence notes) |
 
 This record predates the k-mesh ladder convention and carries meshes and
 k-distances directly, not a `k_index`.
 
-## Quantum ESPRESSO band structures (MC3D, nscf)
+## Quantum ESPRESSO nscf band structures
 
-<!-- Placeholder: replace with the record link and version once the PSDI draft
-     is reviewed and submitted. -->
-*Record link to be added — the deposit is with PSDI and not yet published.* ·
+[`r3byg-xp284`](https://data-collections.psdi.ac.uk/records/r3byg-xp284) · v1 ·
 CC BY 4.0
+
+Produced by the [QE nscf band campaign](campaigns/qe-nscf-bands.md).
 
 Non-self-consistent band-structure calculations for **19,405 MC3D structures**:
 one summary row per material, the primitive cell the bands were computed on, and
 the eigenvalues along the high-symmetry k-point path. Every structure has all
 three — there is no row without a structure file and none without a band table.
 
-Same settings and the same family of structures as the k-index record above.
-That one answers *which mesh is dense enough*; this one answers *what the band
+Same settings and the same family of structures as the SCF records above.
+Those answer *which mesh is dense enough*; this one answers *what the band
 structure says about the material*.
 
 | File | Contents |

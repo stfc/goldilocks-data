@@ -28,18 +28,21 @@ Model training belongs in
 [Goldilocks ML](https://stfc.github.io/goldilocks-ml/). End-user input
 generation belongs in Goldilocks Core.
 
-## Current data campaign
+## What has been published
 
-The first campaign measures **Quantum ESPRESSO no-spin SCF k-point
-convergence** with a gamma-inclusive kindex schedule. It compares PseudoDojo
-and SSSP PBEsol pseudopotentials.
+Three records, from two campaigns, all on MC3D structures with Quantum ESPRESSO:
 
-The campaign extends an unconverged structure by three meshes at a time,
-records every calculation in AiiDA, and exports one summary row per structure.
+| Campaign | Records |
+| --- | --- |
+| [No-spin SCF k-point convergence](campaigns/qe-kpoints.md) | the converged mesh per structure, and the full per-calculation output behind the paper |
+| [nscf band structures](campaigns/qe-nscf-bands.md) | eigenvalues along the high-symmetry path, with Fermi level, metallicity and band gap |
+
+Each [record](published-records.md) says what its columns mean and which
+conventions it froze; each campaign page says how to reproduce the calculations
+behind it.
 
 ## Where to go
 
-[Install the environment](installation/index.md){ .md-button .md-button--primary }
-[Run the k-point campaign](campaigns/qe-kpoints.md){ .md-button }
-[Use the results](results.md){ .md-button }
-[Published records](published-records.md){ .md-button }
+[Published records](published-records.md){ .md-button .md-button--primary }
+[Install goldilocks-data](installation/package.md){ .md-button }
+[Data campaigns](campaigns/index.md){ .md-button }
