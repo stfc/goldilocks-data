@@ -10,6 +10,10 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "pandas>=2.2",
+    # kmesh reads the reciprocal lattice throughout and reduces every mesh by
+    # symmetry, so a caller already needs a pymatgen Structure. Optional only in
+    # name.
+    "pymatgen>=2024.1",
 ]
 
 [project.optional-dependencies]
@@ -19,7 +23,6 @@ aiida = [
 ]
 kmesh = [
     "pyarrow>=15",
-    "pymatgen>=2024.1",
 ]
 publish = [
     "data-collections-api==0.1.0",

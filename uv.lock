@@ -786,6 +786,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "pandas" },
+    { name = "pymatgen" },
 ]
 
 [package.optional-dependencies]
@@ -795,7 +796,6 @@ aiida = [
 ]
 kmesh = [
     { name = "pyarrow" },
-    { name = "pymatgen" },
 ]
 publish = [
     { name = "data-collections-api" },
@@ -818,7 +818,7 @@ requires-dist = [
     { name = "data-collections-api", marker = "extra == 'publish'", specifier = "==0.1.0" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pyarrow", marker = "extra == 'kmesh'", specifier = ">=15" },
-    { name = "pymatgen", marker = "extra == 'kmesh'", specifier = ">=2024.1" },
+    { name = "pymatgen", specifier = ">=2024.1" },
 ]
 provides-extras = ["aiida", "kmesh", "publish"]
 
