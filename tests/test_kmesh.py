@@ -1,7 +1,16 @@
+"""The k-mesh ladder, checked on real materials.
+
+Every structure here is a real crystal: three built from their space group and
+published lattice constants, and one read from the MC3D cell the SCF campaign
+actually ran. Synthetic lattices were tried first and hid two things a real cell
+exposes -- symmetry reduction never ran at all, and the repeated-mesh skip never
+fired.
+"""
+
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
+from pathlib import Path
 
 import pytest
 from pymatgen.core import Lattice, Structure
@@ -9,39 +18,65 @@ from pymatgen.core import Lattice, Structure
 from goldilocks_data.kmesh import (
     build_gamma_kmesh_entries,
     entry_payload,
+    generate_candidate_k_distances,
     k_distance_to_mesh,
 )
 
+DATA = Path(__file__).parent / "data"
 
-def _structure(a: float, b: float, c: float, natoms: int = 1) -> Structure:
-    """A real structure whose solid-state reciprocal lengths are exactly ``(a, b, c)``.
 
-    The ladder depends on ``|b_i|`` alone, so an orthorhombic cell with edges
-    ``2*pi / |b_i|`` pins any reciprocal lengths a test wants while staying a
-    structure pymatgen can reduce by symmetry. Equal arguments give bitwise equal
-    reciprocal lengths, which is what the degenerate-axis case needs.
+def diamond_silicon() -> Structure:
+    """Si, Fd-3m, a = 5.43 A. Cubic: 48 point-group operations, |b_i| all equal."""
+
+    return Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.43), ["Si"], [[0.0, 0.0, 0.0]])
+
+
+def graphite() -> Structure:
+    """C, P6_3/mmc, a = 2.46 A, c = 6.71 A. Layered: |b_1| is 3.1x |b_3|."""
+
+    return Structure.from_spacegroup("P6_3/mmc", Lattice.hexagonal(2.46, 6.71), ["C"], [[0.0, 0.0, 0.25]])
+
+
+def rutile() -> Structure:
+    """TiO2, P4_2/mnm, a = 4.594 A, c = 2.959 A. Tetragonal: the short axis is c."""
+
+    return Structure.from_spacegroup(
+        "P4_2/mnm",
+        Lattice.tetragonal(4.594, 2.959),
+        ["Ti", "O"],
+        [[0.0, 0.0, 0.0], [0.305, 0.305, 0.0]],
+    )
+
+
+def mc3d_67775_silicon() -> Structure:
+    """Hexagonal Si, MC3D 67775, as the SCF campaign ran it.
+
+    Its a and b differ in the last few bits of the cell file (3.8504103266 against
+    3.85041032657442), which is what makes it interesting: see the repeated-mesh
+    test.
     """
 
-    lattice = Lattice.orthorhombic(2 * math.pi / a, 2 * math.pi / b, 2 * math.pi / c)
-    positions = [[index / natoms, 0.0, 0.0] for index in range(natoms)]
-    return Structure(lattice, ["Si"] * natoms, positions)
+    return Structure.from_file(DATA / "mc3d-67775-Si.cif")
 
 
 def test_gamma_kmesh_entries_start_with_gamma_mesh() -> None:
-    entries = build_gamma_kmesh_entries(_structure(1.0, 1.0, 0.5, natoms=4), min_k_distance=0.25)
+    entries = build_gamma_kmesh_entries(diamond_silicon(), min_k_distance=0.25)
 
     assert entries[0].kindex == 1
     assert entries[0].mesh == (1, 1, 1)
     assert entries[1].kindex == 2
-    assert entries[0].k_pra == 4.0
+    assert entries[0].k_pra == 8.0  # 8 sites in the conventional cell x 1 mesh point
 
 
 def test_k_distance_to_mesh_uses_solid_state_reciprocal_lengths() -> None:
-    assert k_distance_to_mesh(_structure(1.0, 2.0, 0.5), 0.51) == (2, 4, 1)
+    # Rutile: |b| = (1.3677, 1.3677, 2.1234) 1/A on the 2*pi reciprocal lattice.
+    # ceil(|b_i| / 0.7) is (2, 2, 4). Reading the crystallographic lengths
+    # instead -- the ones without 2*pi -- would give (1, 1, 1).
+    assert k_distance_to_mesh(rutile(), 0.7) == (2, 2, 4)
 
 
 def test_entry_payload_serializes_infinite_right_bound_as_none() -> None:
-    payload = entry_payload(build_gamma_kmesh_entries(_structure(1.0, 1.0, 1.0), min_k_distance=0.5)[0])
+    payload = entry_payload(build_gamma_kmesh_entries(diamond_silicon(), min_k_distance=0.5)[0])
 
     assert payload["kindex"] == 1
     assert payload["k_mesh"] == (1, 1, 1)
@@ -49,12 +84,12 @@ def test_entry_payload_serializes_infinite_right_bound_as_none() -> None:
 
 
 def test_ladder_is_gap_free_down_to_the_floor() -> None:
-    # An anisotropic cell: a per-axis k-point cap would let the long axes run
-    # out of change points while the short one is still stepping. A k-distance
-    # floor stops every axis at the same place, so the ladder is gap-free by
+    # Graphite is layered, so |b_1| = |b_2| = 2.949 against |b_3| = 0.936. Under
+    # a per-axis k-point cap the two long axes would run out of change points
+    # while the short one was still stepping, leaving holes. A k-distance floor
+    # stops every axis at the same place, so the ladder is gap-free by
     # construction.
-    entries = build_gamma_kmesh_entries(_structure(2.5547, 2.5547, 0.6485), min_k_distance=0.09)
-    meshes = [entry.mesh for entry in entries]
+    meshes = [entry.mesh for entry in build_gamma_kmesh_entries(graphite(), min_k_distance=0.1)]
 
     assert len(meshes) > 1
     for before, after in zip(meshes[:-1], meshes[1:], strict=True):
@@ -63,22 +98,32 @@ def test_ladder_is_gap_free_down_to_the_floor() -> None:
         assert min(steps) >= 0, f"{before} -> {after} is not monotonic"
 
 
-def test_ladder_never_repeats_a_mesh_for_degenerate_axes() -> None:
-    # MC3D 170541 (SiO2): |b_1| and |b_3| are exactly equal, so their change
-    # points coincide and two consecutive intervals yield the same mesh. Without
-    # the skip, two kindex values would name one mesh.
-    meshes = [entry.mesh for entry in build_gamma_kmesh_entries(_structure(0.701, 0.7816, 0.701))]
+def test_ladder_drops_a_mesh_a_second_interval_would_repeat() -> None:
+    # MC3D 67775, hexagonal Si. Its a and b are equal only to about 11 decimal
+    # places, so |b_1| and |b_2| give two change points a hair apart, and the
+    # sliver of k-distance between them yields a mesh the next interval yields
+    # again. Without the skip two kindex values would name one mesh.
+    #
+    # Exactly equal axes do not cause this -- their change points coincide and
+    # collapse in the candidate set. It takes a near miss, which is why this
+    # needs a real cell: 36 of the 20,826 MC3D structures in the campaign hit
+    # it, and no idealised lattice does.
+    structure = mc3d_67775_silicon()
 
-    assert len(meshes) == len(set(meshes))
-    assert meshes[:4] == [(1, 1, 1), (1, 2, 1), (2, 2, 2), (2, 3, 2)]
+    candidates = generate_candidate_k_distances(structure)
+    entries = build_gamma_kmesh_entries(structure)
+
+    # One interval per candidate, so fewer rungs than candidates means the skip ran.
+    assert len(entries) < len(candidates)
+    assert len({entry.mesh for entry in entries}) == len(entries)
 
 
 def test_lowering_the_floor_only_extends_the_ladder() -> None:
     # kindex is recorded in campaign snapshots and published records, so a lower
     # floor must never renumber a rung that already existed.
-    structure = _structure(2.5547, 2.5547, 0.6485)
-    coarse = [entry.mesh for entry in build_gamma_kmesh_entries(structure, min_k_distance=0.1)]
-    fine = [entry.mesh for entry in build_gamma_kmesh_entries(structure, min_k_distance=0.05)]
+    structure = graphite()
+    coarse = [entry.mesh for entry in build_gamma_kmesh_entries(structure, min_k_distance=0.2)]
+    fine = [entry.mesh for entry in build_gamma_kmesh_entries(structure, min_k_distance=0.1)]
 
     assert len(fine) > len(coarse)
     assert fine[: len(coarse)] == coarse
@@ -86,30 +131,45 @@ def test_lowering_the_floor_only_extends_the_ladder() -> None:
 
 def test_ladder_stops_at_the_resolution_floor() -> None:
     # The floor caps the densest mesh at ceil(|b_i| / min_k_distance) per axis,
-    # independent of any k-point count. 0.125 = 1/8 exactly, so no float noise.
-    entries = build_gamma_kmesh_entries(_structure(1.0, 1.0, 1.0), min_k_distance=0.125)
+    # independent of any k-point count. Taking the floor as |b| / 8 of a cubic
+    # cell makes that exactly (8, 8, 8) with no float noise.
+    silicon = diamond_silicon()
+    entries = build_gamma_kmesh_entries(silicon, min_k_distance=silicon.lattice.reciprocal_lattice.a / 8)
 
     assert entries[-1].mesh == (8, 8, 8)
 
 
 def test_kindex_is_contiguous_and_one_based() -> None:
-    entries = build_gamma_kmesh_entries(_structure(0.701, 0.7816, 0.701))
+    entries = build_gamma_kmesh_entries(mc3d_67775_silicon())
 
     assert [entry.kindex for entry in entries] == list(range(1, len(entries) + 1))
 
 
 def test_n_reduced_kpoints_is_the_irreducible_count_not_the_full_mesh() -> None:
-    # Diamond silicon, the canonical high-symmetry case. A fallback to the full
-    # mesh size would return 64 here and look like a perfectly ordinary integer,
-    # which is why there is no fallback.
-    silicon = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.43), ["Si"], [[0.0, 0.0, 0.0]])
-
-    entries = build_gamma_kmesh_entries(silicon, min_k_distance=0.2)
+    # Diamond silicon, the strongest symmetry there is. A fallback to the full
+    # mesh size would report 64 here, and 64 is a perfectly ordinary-looking
+    # integer -- which is the whole reason there is no fallback.
+    entries = build_gamma_kmesh_entries(diamond_silicon(), min_k_distance=0.2)
     by_mesh = {entry.mesh: entry for entry in entries}
 
     assert by_mesh[(4, 4, 4)].n_reduced_kpoints == 10
     assert by_mesh[(4, 4, 4)].k_pra == 8 * 64
     assert by_mesh[(1, 1, 1)].n_reduced_kpoints == 1
+
+
+def test_every_real_crystal_reduces_by_a_large_factor() -> None:
+    # Three real crystals, each at the densest rung of its own ladder. Under the
+    # old fallback all three would have reported the full mesh size, and the
+    # fallback was what the suite silently ran on -- so nothing here would have
+    # failed. Pin the counts so that cannot recur.
+    def densest(structure: Structure) -> tuple[int, int]:
+        entry = build_gamma_kmesh_entries(structure, min_k_distance=0.2)[-1]
+        full = entry.mesh[0] * entry.mesh[1] * entry.mesh[2]
+        return full, entry.n_reduced_kpoints
+
+    assert densest(diamond_silicon()) == (125, 10)  # (5, 5, 5), cubic
+    assert densest(graphite()) == (980, 72)  # (14, 14, 5), hexagonal
+    assert densest(rutile()) == (490, 60)  # (7, 7, 10), tetragonal
 
 
 def test_a_structure_that_cannot_be_reduced_raises_instead_of_counting_the_full_mesh() -> None:

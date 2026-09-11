@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import math
-
 from pymatgen.core import Lattice, Structure
 
 from goldilocks_data.codes import DftCode
@@ -11,9 +9,8 @@ from goldilocks_data.sweeps import AiidaJobSpec, SweepAxis
 
 
 def test_kindex_points_are_generic_sweep_points() -> None:
-    # A cubic cell with |b_i| = 1: rung 1 is Gamma-only and rung 2 is (2, 2, 2).
-    edge = 2 * math.pi
-    structure = Structure(Lattice.cubic(edge), ["Si"], [[0.0, 0.0, 0.0]])
+    # Diamond silicon: rung 1 is the Gamma-only mesh, as it is on every ladder.
+    structure = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.43), ["Si"], [[0.0, 0.0, 0.0]])
 
     points = kindex_points(structure, 1, 2)
 

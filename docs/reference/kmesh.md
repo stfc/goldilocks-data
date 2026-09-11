@@ -140,11 +140,19 @@ together. Every change point on `[min_k_distance, ∞)` is therefore present and
 consecutive rungs differ by at most one k-point on each axis — the ladder has no
 region where a reachable mesh is silently skipped.
 
-One rule still shapes it: **skip a repeat**. Axes with equal `|b_i|` share their
-change points, and the two rounding precisions (`round(·, 8)` on the candidate
-k-distances, `round(·, 5)` inside `k_distance_to_mesh`) can land two adjacent
-intervals on one mesh; without the skip, that mesh would take two `kindex`
-values.
+One rule still shapes it: **skip a repeat**. Two axes of *almost* the same
+length put two change points a hair apart, and the sliver of k-distance between
+them can round to the same mesh as its neighbour — the two rounding precisions
+(`round(·, 8)` on the candidate k-distances, `round(·, 5)` inside
+`k_distance_to_mesh`) decide where that happens. Without the skip, one mesh
+would take two `kindex` values.
+
+Axes of *exactly* equal length do not cause this: they produce the same
+quotients, which collapse in the candidate set before any mesh is computed. It
+takes a near miss, so it is rare and real — 36 of the 20,826 MC3D structures in
+the SCF campaign hit it, and no idealised lattice does. `tests/test_kmesh.py`
+pins one of them, MC3D 67775, whose `a` and `b` agree to about eleven decimal
+places.
 
 Lowering `min_k_distance` only appends rungs and never renumbers an existing
 one, so a recorded `kindex` stays valid under a smaller floor. A `kindex`

@@ -89,10 +89,14 @@ def build_gamma_kmesh_entries(structure: Any, min_k_distance: float = MIN_K_DIST
 
     The ladder is complete and non-repeating down to ``min_k_distance``: every
     change point above the floor is enumerated, so consecutive rungs differ by
-    at most one k-point on each axis and no reachable mesh is skipped. A mesh
-    already on the ladder is dropped -- axes with equal ``|b_i|`` share their
-    change points, so two consecutive intervals can yield the same mesh, and
-    without the skip two ``kindex`` values would name one mesh.
+    at most one k-point on each axis and no reachable mesh is skipped.
+
+    A mesh already on the ladder is dropped. Two axes of *almost* equal length
+    put two change points a hair apart, and the sliver between them can round to
+    the same mesh as its neighbour; without the skip that mesh would take two
+    ``kindex`` values. Exactly equal axes do not do this -- their quotients are
+    identical and collapse in the candidate set -- so it takes a near miss, and
+    it is rare: 36 of the 20,826 MC3D structures in the SCF campaign hit it.
 
     ``structure`` must be a real pymatgen ``Structure``: every rung is reduced by
     symmetry, and a structure that cannot be analysed raises rather than yielding
