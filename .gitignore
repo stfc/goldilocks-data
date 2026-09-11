@@ -20,5 +20,12 @@ CLAUDE.md
 /docs/PLAN.en.md
 /site/
 
+# The rig that drives one concrete run -- controller scripts, its AiiDA group
+# and profile, its dated export tables -- is operational, not reusable, and
+# naming a live group in a public repository advertises unpublished work. It
+# stays here on disk, where uv and the scripts' own relative paths still work,
+# and out of git.
+/campaigns/
+
 # Intermediate analysis caches are reproducible and can be large.
 *.pkl
