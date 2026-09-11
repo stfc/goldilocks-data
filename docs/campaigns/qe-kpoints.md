@@ -64,6 +64,11 @@ than from that file.
     reimplementation that stops after checking three will label some structures
     converged that this campaign did not.
 
+    The record is not being amended. A published record keeps the wording it
+    was published with, so that a citation stays fixed; this page is where the
+    two are reconciled, and the labels in the record are the ones the code
+    above produces.
+
 ## Running it at scale
 
 A full campaign is a loop: submit a bounded number of WorkChains, wait, query
