@@ -1,6 +1,14 @@
 # Installation
 
-Reproducing the current campaign has two separate setup stages:
+How much you install depends on what you want to do.
+
+| You want to | Install |
+| --- | --- |
+| Build a k-mesh ladder, label convergence, read a published record | [the package](package.md) |
+| Publish a dataset to PSDI | the package with the `publish` extra |
+| Run or extend a data campaign | the package, then AiiDA, then Quantum ESPRESSO |
+
+Only the last one needs the full stack, and it has two further stages:
 
 1. install AiiDA and its local services on macOS;
 2. add the Quantum ESPRESSO plugin, SCARF computer, `pw.x` code, and
@@ -12,5 +20,6 @@ conflict.
 
 ## Choose the next page
 
-[Install AiiDA on macOS](aiida-macos.md){ .md-button .md-button--primary }
+[Install goldilocks-data](package.md){ .md-button .md-button--primary }
+[Install AiiDA on macOS](aiida-macos.md){ .md-button }
 [Add Quantum ESPRESSO and SCARF](qe-scarf.md){ .md-button }

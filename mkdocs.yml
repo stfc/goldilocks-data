@@ -46,6 +46,7 @@ nav:
   - Home: index.md
   - Installation:
       - Overview: installation/index.md
+      - Install goldilocks-data: installation/package.md
       - AiiDA on macOS: installation/aiida-macos.md
       - Quantum ESPRESSO and SCARF: installation/qe-scarf.md
   - Data campaigns:
